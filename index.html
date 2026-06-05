@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3학년 수능특강 영단어 퀴즈</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; }
+        .container { max-width: 500px; margin: 20px auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; }
+        .sub-title { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
+        .range-setter { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e9ecef; }
+        .range-setter label { font-size: 14px; color: #495057; font-weight: bold; margin: 0 5px; }
+        .range-setter input { width: 60px; padding: 6px; font-size: 15px; border: 1px solid #ced4da; border-radius: 6px; text-align: center; }
+        .btn-setting { background-color: #6c757d; color: white; border: none; padding: 6px 12px; font-size: 14px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold; }
+        .mode-badge { display: inline-block; padding: 6px 14px; font-size: 13px; font-weight: bold; border-radius: 30px; margin-bottom: 25px; background-color: #e3f2fd; color: #1e88e5; }
+        .word { font-size: 34px; font-weight: bold; color: #1a73e8; margin-bottom: 25px; min-height: 50px; word-break: break-word; }
+        input[type="text"] { width: 85%; padding: 14px; font-size: 18px; border: 2px solid #ced4da; border-radius: 12px; outline: none; text-align: center; }
+        button { margin-top: 15px; padding: 14px; font-size: 18px; font-weight: bold; background-color: #1a73e8; color: white; border: none; border-radius: 12px; cursor: pointer; width: 90%; }
+        .btn-wrong { background-color: #e53935; margin-top: 12px; }
+        .result { margin-top: 20px; font-size: 18px; font-weight: bold; min-height: 40px; line-height: 1.5; padding: 10px; border-radius: 8px; display: none; }
+        .correct { color: #2e7d32; background-color: #e8f5e9; }
+        .incorrect { color: #c62828; background-color: #ffebee; }
+        .score { margin-top: 25px; font-size: 14px; color: #5f6368; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>3학년 수능특강 영단어</h2>
+    <div class="sub-title">완벽 오답노트 무한복습 프로그램</div>
+    
+    <div class="range-setter">
+        <label for="start-num">시작:</label>
+        <input type="number" id="start-num" value="1" min="1" max="200">
+        <label for="end-num">끝:</label>
+        <input type="number" id="end-num" value="200" min="1" max="200">
+        <button class="btn-setting" onclick="applyRange()">적용</button>
+    </div>
+
+    <div id="mode-display" class="mode-badge">일반 모드 (1~200)</div>
+    <div class="word" id="word-display">로딩 중...</div>
+    <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
+    <br>
+    <button onclick="checkAnswer()" id="action-btn">정답 확인</button>
+    <button onclick="startWrongQuiz()" id="wrong-btn" class="btn-wrong" style="display: none;">틀린 단어만 복습하기</button>
+    <div class="result" id="result-display"></div>
+    <div class="score" id="score-display">진행도: 0 / 200</div>
+</div>
+<script>
+    const masterWordList = [
+        { id: 1, eng: "accelerate", kor: ["속도가 높아지다", "속도가높아지다"] },
+        { id: 2, eng: "accustomed to", kor: ["~e 익숙한", "~에 익숙한", "에 익숙한", "익숙한"] },
+        { id: 3, eng: "adherence", kor: ["엄수", "충실"] },
+        { id: 4, eng: "affectionate", kor: ["애정 어린", "다정한", "애정어린"] },
+        { id: 5, eng: "alter", kor: ["바꾸다"] },
+        { id: 6, eng: "alternative", kor: ["대체물"] },
+        { id: 7, eng: "analyze", kor: ["분석하다"] },
+        { id: 8, eng: "appreciable", kor: ["주목할 만한", "주목할만한"] },
+        { id: 9, eng: "arrange", kor: ["계획하다", "정하다"] },
+        { id: 10, eng: "as opposed to", kor: ["~과 다르게", "대조적으로", "과 다르게", "과다르게"] },
+        { id: 11, eng: "aspect", kor: ["측면"] },
+        { id: 12, eng: "assert", kor: ["행사하다"] },
+        { id: 13, eng: "associate", kor: ["동료"] },
+        { id: 14, eng: "attainment", kor: ["달성"] },
+        { id: 15, eng: "authentic", kor: ["진정한", "실제의"] },
+        { id: 16, eng: "awareness", kor: ["인식"] },
+        { id: 17, eng: "barn", kor: ["헛간"] },
+        { id: 18, eng: "barrier", kor: ["장벽"] },
+        { id: 19, eng: "bear to do", kor: ["~을 견디다", "~을 참고 하다", "을 견디다", "을 참고하다", "견디다", "참고하다"] },
+        { id: 20, eng: "beneficial", kor: ["유익한", "이로운"] },
+        { id: 21, eng: "bent", kor: ["구부러진"] },
+        { id: 22, eng: "blend", kor: ["결합하다", "조합하다", "결합", "조합"] },
+        { id: 23, eng: "browse", kor: ["뜯어 먹다", "뜯어먹다"] },
+        { id: 24, eng: "bygone", kor: ["지나간"] },
+        { id: 25, eng: "calming", kor: ["진정"] },
+        { id: 26, eng: "capacity", kor: ["능력"] },
+        { id: 27, eng: "civility", kor: ["정중함", "공손함"] },
+        { id: 28, eng: "commercially", kor: ["상업적으로"] },
+        { id: 29, eng: "compatibility", kor: ["양립 가능성", "양립가능성"] },
+        { id: 30, eng: "compatible", kor: ["일치하는"] },
+        { id: 31, eng: "compelling", kor: ["설득력 있는", "설득력있는"] },
+        { id: 32, eng: "complicated", kor: ["복잡한"] },
+        { id: 33, eng: "compromise", kor: ["위태롭게 하다", "위태롭게하다"] },
+        { id: 34, eng: "conduct", kor: ["실시하다"] },
+        { id: 35, eng: "confidentiality", kor: ["비밀 보호", "비밀보호"] },
+        { id: 36, eng: "confirm", kor: ["확인하다"] },
+        { id: 37, eng: "confusion", kor: ["혼란"] },
+        { id: 38, eng: "conscious", kor: ["의식적인"] },
+        { id: 39, eng: "conservation", kor: ["보전", "보존"] },
+        { id: 40, eng: "constant", kor: ["일정한", "계속되는"] },
+        { id: 41, eng: "contain", kor: ["포함하다"] },
+        { id: 42, eng: "controversial", kor: ["논쟁의 대상인", "논쟁의대상인"] },
+        { id: 43, eng: "conversely", kor: ["반대로"] },
+        { id: 44, eng: "convince", kor: ["납득시키다"] },
+        { id: 45, eng: "coordinate", kor: ["조정하다"] },
+        { id: 46, eng: "courtesy", kor: ["예의"] },
+        { id: 47, eng: "criticize", kor: ["비판하다"] },
+        { id: 48, eng: "cultured", kor: ["배양한"] },
+        { id: 49, eng: "custom", kor: ["관행", "관습"] },
+        { id: 50, eng: "customization", kor: ["고객 맞춤화", "고객맞춤화"] },
+        { id: 51, eng: "cut down on", kor: ["~을 줄이다", "을 줄이다", "줄이다"] },
+        { id: 52, eng: "dairy", kor: ["유제품"] },
+        { id: 53, eng: "deceive", kor: ["속이다"] },
+        { id: 54, eng: "decline", kor: ["감소"] },
+        { id: 55, eng: "decomposition", kor: ["분해"] },
+        { id: 56, eng: "deep-freeze", kor: ["급속 냉동의, 매우 차가운", "급속 냉동의", "매우 차가운", "급속냉동의"] },
+        { id: 57, eng: "defensive", kor: ["방어적인"] },
+        { id: 58, eng: "deprive", kor: ["빼앗다"] },
+        { id: 59, eng: "disastrous", kor: ["재앙인", "재앙의"] },
+        { id: 60, eng: "diversify", kor: ["다양화하다"] },
+        { id: 61, eng: "dominant", kor: ["지배적인"] },
+        { id: 62, eng: "downright", kor: ["매우, 아주", "매우", "아주"] },
+        { id: 63, eng: "dynamics", kor: ["역학"] },
+        { id: 64, eng: "eliminate", kor: ["제거하다"] },
+        { id: 65, eng: "emerging", kor: ["새로 나타나는", "새로나타나는"] },
+        { id: 66, eng: "emission", kor: ["배출"] },
+        { id: 67, eng: "encounter", kor: ["접하다, 마주치다", "접하다", "마주치다"] },
+        { id: 68, eng: "engage in", kor: ["~에 참여하다", "에 참여하다", "참여하다"] },
+        { id: 69, eng: "enhance", kor: ["강화하다"] },
+        { id: 70, eng: "entertaining", kor: ["재미있는", "재미있게 하는"] },
+        { id: 71, eng: "estimate", kor: ["추정하다"] },
+        { id: 72, eng: "ethnic", kor: ["민족의"] },
+        { id: 73, eng: "evoke", kor: ["불러일으키다"] },
+        { id: 74, eng: "exceed", kor: ["초과하다"] },
+        { id: 75, eng: "expansion", kor: ["확장"] },
+        { id: 76, eng: "explicit", kor: ["명시적인"] },
+        { id: 77, eng: "extreme", kor: ["극단, 극도", "극단", "극도"] },
+        { id: 78, eng: "fill in", kor: ["~을 작성하다", "을 작성하다", "작성하다"] },
+        { id: 79, eng: "fondness", kor: ["애정, 애호, 애착", "애정", "애호", "애착"] },
+        { id: 80, eng: "fundamentally", kor: ["본질적으로, 기본적으로", "본질적으로", "기본적으로"] },
+        { id: 81, eng: "generate", kor: ["생성하다"] },
+        { id: 82, eng: "generosity", kor: ["관대함"] },
+        { id: 83, eng: "geography", kor: ["지리학"] },
+        { id: 84, eng: "get around to doing", kor: ["마침내 ~하다", "마침내 하다", "마침내"] },
+        { id: 85, eng: "gradual", kor: ["점진적인"] },
+        { id: 86, eng: "guilty", kor: ["죄책감이 드는", "죄책감"] },
+        { id: 87, eng: "halt", kor: ["중단하다"] },
+        { id: 88, eng: "heritage site", kor: ["유적지"] },
+        { id: 89, eng: "hold on to", kor: ["계속 보유하다, 고수하다", "계속 보유하다", "고수하다", "계속보유하다"] },
+        { id: 90, eng: "humanize", kor: ["인정미 있게 하다", "인정미있게하다"] },
+        { id: 91, eng: "identification", kor: ["식별"] },
+        { id: 92, eng: "illustrate", kor: ["설명하다"] },
+        { id: 93, eng: "immediate", kor: ["즉각적인"] },
+        { id: 94, eng: "implicitly", kor: ["은연중에"] },
+        { id: 95, eng: "imply", kor: ["의미하다, 암시하다", "의미하다", "암시하다"] },
+        { id: 96, eng: "import", kor: ["끌어오다, 가져오다", "끌어오다", "가져오다"] },
+        { id: 97, eng: "imposition", kor: ["부과"] },
+        { id: 98, eng: "impression", kor: ["인상"] },
+        { id: 99, eng: "in addition to", kor: ["~e 더하여", "~에 더하여", "에 더하여", "에더하여"] },
+        { id: 100, eng: "in exchange for", kor: ["보답으로, 대가로", "보답으로", "대가로"] },
+        { id: 101, eng: "inaccuracy", kor: ["부정확성"] },
+        { id: 102, eng: "inclined", kor: ["경사진"] },
+        { id: 103, eng: "indication", kor: ["보여주는 것, 표시", "보여주는 것", "표시"] },
+        { id: 104, eng: "inference", kor: ["추론"] },
+        { id: 105, eng: "influential", kor: ["영향력 있는", "영향력있는"] },
+        { id: 106, eng: "informant", kor: ["정보 제공자", "정보제공자"] },
+        { id: 107, eng: "insurance", kor: ["보험"] },
+        { id: 108, eng: "interference", kor: ["간섭"] },
+        { id: 109, eng: "intervention", kor: ["개입"] },
+        { id: 110, eng: "intimate", kor: ["친밀한"] },
+        { id: 111, eng: "invisible", kor: ["보이지 않는", "보이지않는"] },
+        { id: 112, eng: "involved", kor: ["관여된"] },
+        { id: 113, eng: "irrelevance", kor: ["무관함"] },
+        { id: 114, eng: "jawbreaker", kor: ["알사탕"] },
+        { id: 115, eng: "landfill", kor: ["(쓰레기) 매립지", "매립지", "쓰레기 매립지"] },
+        { id: 116, eng: "landscape", kor: ["경관, 지형", "경관", "지형"] },
+        { id: 117, eng: "literacy", kor: ["지식, 능력", "지식", "능력"] },
+        { id: 118, eng: "literate", kor: ["지식이 있는", "지식이있는"] },
+        { id: 119, eng: "locate", kor: ["표시하다, 찾아내다", "표시하다", "찾아내다"] },
+        { id: 120, eng: "maintain", kor: ["유지하다"] },
+        { id: 121, eng: "maturity", kor: ["성숙", "성숙(도)", "성숙도"] },
+        { id: 122, eng: "modify", kor: ["바꾸다, 수정하다", "바꾸다", "수정하다"] },
+        { id: 123, eng: "monument", kor: ["기념물"] },
+        { id: 124, eng: "mutual", kor: ["상호 간의", "상호간의"] },
+        { id: 125, eng: "narrative", kor: ["서사"] },
+        { id: 126, eng: "necessitate", kor: ["필요로 하다", "필요로하다"] },
+        { id: 127, eng: "negligible", kor: ["무시해도 될 정도의", "무시해도 될 정도"] },
+        { id: 128, eng: "negotiate", kor: ["협상하다"] },
+        { id: 129, eng: "neutral", kor: ["중립의"] },
+        { id: 130, eng: "no more than", kor: ["단지 ~에 불과한", "단지 에 불과한", "단지에불과한"] },
+        { id: 131, eng: "nostalgically", kor: ["향수에 젖어", "향수에젖어"] },
+        { id: 132, eng: "obligation", kor: ["의무"] },
+        { id: 133, eng: "obtain", kor: ["얻다"] },
+        { id: 134, eng: "occupy", kor: ["점유하다"] },
+        { id: 135, eng: "outcome", kor: ["결과"] },
+        { id: 136, eng: "overcome", kor: ["극복하다"] },
+        { id: 137, eng: "overwhelm", kor: ["어쩔 줄 모르게 만들다", "어쩔줄모르게만들다"] },
+        { id: 138, eng: "permanently", kor: ["영구적으로"] },
+        { id: 139, eng: "persist", kor: ["지속하다, 유지하다", "지속하다", "유지하다"] },
+        { id: 140, eng: "perspective", kor: ["관점"] },
+        { id: 141, eng: "portray", kor: ["묘사하다"] },
+        { id: 142, eng: "potent", kor: ["강력한"] },
+        { id: 143, eng: "precise", kor: ["정확한"] },
+        { id: 144, eng: "previously", kor: ["이전에"] },
+        { id: 145, eng: "prominent", kor: ["중요한"] },
+        { id: 146, eng: "prompt", kor: ["프롬프트"] },
+        { id: 147, eng: "property", kor: ["특성"] },
+        { id: 148, eng: "rational", kor: ["합리적인"] },
+        { id: 149, eng: "reasonable", kor: ["합리적인"] },
+        { id: 150, eng: "recognize", kor: ["인식하다"] },
+        { id: 151, eng: "refer to ~ as ...", kor: ["~을 ...이라고 언급하다", "을 이라고 언급하다", "언급하다"] },
+        { id: 152, eng: "referent", kor: ["지시 대상", "지시대상"] },
+        { id: 153, eng: "reflective", kor: ["반영하는"] },
+        { id: 154, eng: "regulation", kor: ["조절"] },
+        { id: 155, eng: "reinforce", kor: ["강화하다"] },
+        { id: 156, eng: "relative", kor: ["상대적인"] },
+        { id: 157, eng: "release", kor: ["방출하다"] },
+        { id: 158, eng: "relevant", kor: ["유의미한, 관련 있는", "유의미한", "관련 있는", "관련있는"] },
+        { id: 159, eng: "reliable", kor: ["확실한, 신뢰할 수 있는", "확실한", "신뢰할 수 있는", "신뢰할수있는"] },
+        { id: 160, eng: "remark", kor: ["말하다, 언급하다", "말하다", "언급하다"] },
+        { id: 161, eng: "replace", kor: ["대체하다"] },
+        { id: 162, eng: "represent", kor: ["나타내다"] },
+        { id: 163, eng: "revolutionize", kor: ["혁신을 가져오다", "혁신을가져오다"] },
+        { id: 164, eng: "rigid", kor: ["경직된"] },
+        { id: 165, eng: "rural", kor: ["농촌의, 시골의", "농촌의", "시골의"] },
+        { id: 166, eng: "secure", kor: ["지키다, 안전하게 하다", "지키다", "안전하게 하다", "안전하게하다"] },
+        { id: 167, eng: "security measure", kor: ["보안 조치", "보안조치"] },
+        { id: 168, eng: "seed", kor: ["씨앗"] },
+        { id: 169, eng: "self-imposed", kor: ["스스로 부과한", "스스로부과한"] },
+        { id: 170, eng: "sensitive", kor: ["민감한"] },
+        { id: 171, eng: "sequence", kor: ["순서"] },
+        { id: 172, eng: "sharp", kor: ["(맛이나 향이) 강한", "강한", "맛이나 향이 강한"] },
+        { id: 173, eng: "sort", kor: ["분류하다"] },
+        { id: 174, eng: "spatially", kor: ["공간적으로"] },
+        { id: 175, eng: "spectacle", kor: ["구경거리"] },
+        { id: 176, eng: "standardize", kor: ["표준화하다"] },
+        { id: 177, eng: "starve", kor: ["굶주리다"] },
+        { id: 178, eng: "straightforward", kor: ["단순명료한, 간단한", "단순명료한", "간단한"] },
+        { id: 179, eng: "strike up", kor: ["시작하다"] },
+        { id: 180, eng: "subjective", kor: ["주관적인"] },
+        { id: 181, eng: "substantially", kor: ["크게, 상당히", "크게", "상당히"] },
+        { id: 182, eng: "subtle", kor: ["미묘한"] },
+        { id: 183, eng: "supplementary", kor: ["보충적인"] },
+        { id: 184, eng: "suspicion", kor: ["의심"] },
+        { id: 185, eng: "sustainable", kor: ["지속 가능한", "지속가능한"] },
+        { id: 186, eng: "take ~ for granted", kor: ["~을 당연시하다", "을 당연시하다", "당연시하다"] },
+        { id: 187, eng: "take place", kor: ["일어나다, 열리다", "일어나다", "열리다"] },
+        { id: 188, eng: "take up", kor: ["~을 다루다", "을 다루다", "다루다"] },
+        { id: 189, eng: "transferable", kor: ["(다른 것에) 적용 가능한", "적용 가능한", "적용가능한"] },
+        { id: 190, eng: "translate", kor: ["번역하다"] },
+        { id: 191, eng: "trigger", kor: ["유발하다"] },
+        { id: 192, eng: "ultimately", kor: ["궁극적으로"] },
+        { id: 193, eng: "unjustified", kor: ["정당하지 않은", "정당하지않은"] },
+        { id: 194, eng: "unpredictable", kor: ["예측 불가능한", "예측불가능한"] },
+        { id: 195, eng: "unsatisfactory", kor: ["만족스럽지 못한", "만족스럽지못한"] },
+        { id: 196, eng: "utility", kor: ["공공 에너지 서비스", "공공에너지서비스", "유틸리티"] },
+        { id: 197, eng: "verified", kor: ["검증된"] },
+        { id: 198, eng: "vulnerability", kor: ["취약성"] },
+        { id: 199, eng: "wander", kor: ["돌아다니다, 배회하다", "돌아다니다", "배회하다"] },
+        { id: 200, eng: "yield to", kor: ["~으로 대체되다", "으로 대체되다", "대체되다"] }
+    ];
+
+    let currentRangeList = [...masterWordList];
+    let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    function applyRange() {
+        let start = parseInt(document.getElementById("start-num").value) || 1;
+        let end = parseInt(document.getElementById("end-num").value) || 200;
+
+        if (start > end) { alert("시작 번호가 끝 번호보다 클 수 없습니다."); return; }
+        if (start < 1) start = 1;
+        if (end > 200) end = 200;
+
+        currentRangeList = masterWordList.filter(item => item.id >= start && item.id <= end);
+        document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번 구간)`;
+        initQuiz();
+    }
+
+    function initQuiz() {
+        quizList = shuffle([...currentRangeList]); wrongList = []; currentIndex = 0;
+        document.getElementById("wrong-btn").style.display = "none";
+        showQuestion();
+    }
+
+    function startWrongQuiz() {
+        quizList = shuffle([...wrongList]); wrongList = []; currentIndex = 0;
+        document.getElementById("mode-display").innerText = "🔥 오답 집중 복습 모드";
+        document.getElementById("wrong-btn").style.display = "none";
+        showQuestion();
+    }
+
+    function showQuestion() {
+        const resultDiv = document.getElementById("result-display");
+        const userInput = document.getElementById("user-input");
+        if (currentIndex >= quizList.length) {
+            userInput.style.display = "none";
+            document.getElementById("action-btn").innerText = "이 범위로 다시 하기";
+            resultDiv.style.display = "block";
+            if (wrongList.length > 0) {
+                document.getElementById("word-display").innerText = "✍️ 오답 정리 타임";
+                resultDiv.innerHTML = `선택 범위에서 <b>${wrongList.length}개</b> 틀렸습니다.<br>오답 노트를 진행해보세요!`;
+                resultDiv.className = "result incorrect";
+                document.getElementById("wrong-btn").style.display = "inline-block";
+                document.getElementById("wrong-btn").innerText = `틀린 단어만 풀기 (${wrongList.length}개)`;
+            } else {
+                document.getElementById("word-display").innerText = "🎉 범위 마스터!";
+                resultDiv.innerHTML = "해당 구간의 틀린 단어가 없습니다. 완벽해요! 🔥";
+                resultDiv.className = "result correct";
+            }
+            return;
+        }
+        document.getElementById("word-display").innerText = quizList[currentIndex].eng;
+        userInput.value = "";
+        userInput.style.display = "inline-block";
+        resultDiv.style.display = "none";
+        document.getElementById("action-btn").innerText = "정답 확인";
+        document.getElementById("score-display").innerText = `진행도: ${currentIndex} / ${quizList.length}`;
+        isAnswerChecked = false;
+        
+        setTimeout(() => { userInput.focus(); }, 50);
+    }
+
+    function checkAnswer() {
+        if (currentIndex >= quizList.length) { initQuiz(); return; }
+        const btn = document.getElementById("action-btn");
+        const resultDiv = document.getElementById("result-display");
+
+        if (!isAnswerChecked) {
+            const uInput = document.getElementById("user-input").value.trim();
+            const correctAnswers = quizList[currentIndex].kor;
+            const cleanString = str => str.replace(/[\s\~\[\]\(\)\,\.]/g, '');
+            const cleanInput = cleanString(uInput);
+            const isCorrect = correctAnswers.some(ans => {
+                const cleanAns = cleanString(ans);
+                return cleanInput === cleanAns || (cleanInput.length > 0 && cleanAns.includes(cleanInput));
+            });
+
+            resultDiv.style.display = "block";
+            if (isCorrect) {
+                resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers[0]})`;
+                resultDiv.className = "result correct";
+            } else {
+                resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers[0]})`;
+                resultDiv.className = "result incorrect";
+                wrongList.push(quizList[currentIndex]);
+            }
+            btn.innerText = "다음 문제"; isAnswerChecked = true;
+        } else {
+            currentIndex++; showQuestion();
+        }
+    }
+
+    function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
+    applyRange();
+</script>
+</body>
+</html>
