@@ -278,7 +278,6 @@
     let quizList = [], roundWrongList = [], currentIndex = 0, isAnswerChecked = false;
     let isWrongOnlyMode = false;
 
-    // 로컬 스토리지 복원
     if(localStorage.getItem("voca_auto_wrongs")) {
         wrongList = JSON.parse(localStorage.getItem("voca_auto_wrongs"));
     }
@@ -446,8 +445,10 @@
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
     
-    // ★ [핵심] 먹통 문제 해결: 키자마자 퀴즈 최초 구동
-    applyRange();
+    // HTML 화면 요소를 전부 다 안전하게 그린 뒤 자바스크립트를 구동시키는 안전한 로직
+    window.onload = function() {
+        applyRange();
+    };
 </script>
 </body>
 </html>
