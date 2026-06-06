@@ -22,11 +22,14 @@
         
         /* 버튼 공통 */
         button { margin-top: 15px; padding: 14px; font-size: 18px; font-weight: bold; background-color: #1a73e8; color: white; border: none; border-radius: 12px; cursor: pointer; width: 90%; }
-        .btn-sub { background-color: #6c757d; font-size: 15px; padding: 10px; width: 43%; margin: 5px 2%; display: inline-block; }
-        .btn-wrong-test { background-color: #e53935; }
+        
+        /* 오답 제어판 섹션 (빨간색) */
+        .wrong-control-panel { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #ffe3e3; }
+        .btn-wrong-view { background-color: #e53935; font-size: 15px; padding: 10px; width: 43%; margin: 5px 2%; display: inline-block; }
+        .btn-wrong-test { background-color: #c62828; font-size: 15px; padding: 10px; width: 43%; margin: 5px 2%; display: inline-block; }
         
         /* 오답 확인 모달 리스트 */
-        .wrong-list-container { text-align: left; margin-top: 20px; max-height: 250px; overflow-y: auto; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffe3e3; display: none; }
+        .wrong-list-container { text-align: left; margin-top: 15px; max-height: 250px; overflow-y: auto; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffe3e3; display: none; }
         .wrong-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #fcc4c4; font-size: 15px; }
         .wrong-num { font-size: 12px; color: #7f8c8d; font-weight: bold; background: #ebd5d5; padding: 2px 6px; border-radius: 4px; margin-right: 6px; }
         .wrong-item span { font-weight: bold; color: #c62828; }
@@ -57,12 +60,11 @@
     <br>
     <button onclick="checkAnswer()" id="action-btn">정답 확인</button>
     
-    <div>
-        <button onclick="toggleWrongList()" class="btn-sub">내 오답노트 보기</button>
-        <button onclick="startWrongQuiz()" id="wrong-test-btn" class="btn-sub btn-wrong-test" style="display: none;">오답만 시험보기</button>
+    <div class="wrong-control-panel">
+        <button onclick="toggleWrongList()" class="btn-wrong-view">내 오답노트 보기</button>
+        <button onclick="startWrongQuiz()" id="wrong-test-btn" class="btn-wrong-test" style="display: none;">오답만 시험보기</button>
+        <div id="wrong-list-box" class="wrong-list-container"></div>
     </div>
-
-    <div id="wrong-list-box" class="wrong-list-container"></div>
 
     <div class="result" id="result-display"></div>
     <div class="score" id="score-display">진행도: 0 / 200</div>
@@ -271,12 +273,11 @@
         { id: 200, eng: "yield to", kor: ["~으로 대체되다", 으로 대체되다"] }
     ];
 
-    let wrongList = []; // 자동 영구 기억 오답 리스트
+    let wrongList = [];
     let currentRangeList = [];
     let quizList = [], roundWrongList = [], currentIndex = 0, isAnswerChecked = false;
     let isWrongOnlyMode = false;
 
-    // 접속하자마자 브라우저 저장소에서 기존 오답 자동 로드
     if(localStorage.getItem("voca_auto_wrongs")) {
         wrongList = JSON.parse(localStorage.getItem("voca_auto_wrongs"));
     }
@@ -308,7 +309,6 @@
         showQuestion();
     }
 
-    // 오답만 시험보기 모드 시작
     function startWrongQuiz() {
         if(wrongList.length === 0) return;
         quizList = shuffle([...wrongList]);
@@ -328,7 +328,6 @@
             document.getElementById("action-btn").innerText = isWrongOnlyMode ? "오답 다시 풀기" : "이 범위로 다시 하기";
             resultDiv.style.display = "block";
             
-            // 일반 모드 종료 시 현재 판에서 틀린 오답들을 영구 리스트에 중복 없이 병합
             if (!isWrongOnlyMode) {
                 roundWrongList.forEach(item => {
                     if(!wrongList.some(w => w.id === item.id)) {
@@ -382,7 +381,6 @@
             if (isCorrect) {
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers[0]})`;
                 resultDiv.className = "result correct";
-                // 오답 모드에서 정답을 맞히면 오답 리스트에서 즉시 영구 제외
                 if(isWrongOnlyMode) {
                     wrongList = wrongList.filter(w => w.id !== quizList[currentIndex].id);
                     localStorage.setItem("voca_auto_wrongs", JSON.stringify(wrongList));
@@ -400,7 +398,6 @@
         }
     }
 
-    // 오답 리스트 실시간 표현 (단어 번호 추가)
     function renderWrongList() {
         const box = document.getElementById("wrong-list-box");
         if(wrongList.length === 0) {
@@ -408,7 +405,6 @@
             return;
         }
         let html = "";
-        // 프린트 순서(번호순)대로 정렬하여 가시성 업그레이드
         const sortedWrongs = [...wrongList].sort((a, b) => a.id - b.id);
         
         sortedWrongs.forEach((item) => {
@@ -448,8 +444,6 @@
     }
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
-    
-    // 첫 실행
     applyRange();
 </script>
 </body>
