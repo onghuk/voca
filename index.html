@@ -327,7 +327,6 @@
             const uInput = document.getElementById("user-input").value.trim();
             const correctAnswers = quizList[currentIndex].kor;
             
-            // 공백과 물결(~), 온점(.), 대괄호, 소괄호 제거 후 100% 매칭하는 안전한 채점 방식
             const cleanString = str => str.replace(/[\s\~\=\-\_\[\]\(\)\,\.\?]/g, '');
             const cleanInput = cleanString(uInput);
             
@@ -349,7 +348,11 @@
     }
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
-    applyRange();
+    
+    // 이 부분이 핵심입니다! 화면 로딩이 완전히 끝나면 안전하게 시작하도록 바꿨습니다.
+    window.onload = function() {
+        applyRange();
+    };
 </script>
 </body>
 </html>
