@@ -127,7 +127,7 @@
         { id: 77, eng: "extreme", kor: ["극단", "극도", "극단, 극도", "극단,극도"] },
         { id: 78, eng: "fill in", kor: ["~을 작성하다", "을 작성하다", "작성하다"] },
         { id: 79, eng: "fondness", kor: ["애정", "애호", "애착", "애정, 애호, 애착"] },
-        { id: 80, eng: "fundamentally", kor: ["본질적으로", "기본적으로", "본질적으로, 기본적으로"] },
+        { id: 80, font: "fundamentally", kor: ["본질적으로", "기본적으로", "본질적으로, 기본적으로"] },
         { id: 81, eng: "generate", kor: ["생성하다"] },
         { id: 82, eng: "generosity", kor: ["관대함"] },
         { id: 83, eng: "geography", kor: ["지리학"] },
@@ -229,10 +229,10 @@
         { id: 179, eng: "strike up", kor: ["시작하다"] },
         { id: 180, eng: "subjective", kor: ["주관적인"] },
         { id: 181, eng: "substantially", kor: ["크게", "상당히", "크게, 상당히"] },
-        { id: 182, eng: "subtle", ear: ["미묘한"] },
+        { id: 182, eng: "subtle", kor: ["미묘한"] },
         { id: 183, eng: "supplementary", kor: ["보충적인"] },
         { id: 184, eng: "suspicion", kor: ["의심"] },
-        { id: 185, eng: "sustainable", kor: ["지속 가능한"] },
+        { id: 185, eng: "sustainable", kor: ["지속 가능한", "지속가능한"] },
         { id: 186, eng: "take ~ for granted", kor: ["~을 당연시하다", "을 당연시하다"] },
         { id: 187, eng: "take place", kor: ["일어나다", "열리다", "일어나다, 열리다"] },
         { id: 188, eng: "take up", kor: ["~을 다루다", "을 다루다"] },
@@ -266,6 +266,9 @@
         let end = parseInt(document.getElementById("end-num").value) || 200;
 
         if (start > end) { alert("시작 번호가 끝 번호보다 클 수 없습니다."); return; }
+        if (start < 1) start = 1;
+        if (end > 200) end = 200;
+
         currentRangeList = masterWordList.filter(item => item.id >= start && item.id <= end);
         document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번 구간)`;
         initQuiz();
@@ -324,7 +327,7 @@
             const uInput = document.getElementById("user-input").value.trim();
             const correctAnswers = quizList[currentIndex].kor;
             
-            // 공백과 부호들을 안전하게 지우고 완전히 글자가 100% 같아야 하는 강력한 채점 방식
+            // 공백과 물결(~), 온점(.), 대괄호, 소괄호 제거 후 100% 매칭하는 안전한 채점 방식
             const cleanString = str => str.replace(/[\s\~\=\-\_\[\]\(\)\,\.\?]/g, '');
             const cleanInput = cleanString(uInput);
             
@@ -346,11 +349,7 @@
     }
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
-    
-    // 모바일 멈춤 해결용 화면 드로잉 완료 후 실행 설정
-    window.onload = function() {
-        applyRange();
-    };
+    applyRange();
 </script>
 </body>
 </html>
