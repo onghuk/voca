@@ -232,7 +232,7 @@
         { id: 182, eng: "subtle", kor: ["미묘한"] },
         { id: 183, eng: "supplementary", kor: ["보충적인"] },
         { id: 184, eng: "suspicion", kor: ["의심"] },
-        { id: 185, eng: "sustainable", kor: ["지속 가능한", "지속가능한"] },
+        { id: 185, eng: "sustainable", kor: ["지속 가능한"] },
         { id: 186, eng: "take ~ for granted", kor: ["~을 당연시하다", "을 당연시하다"] },
         { id: 187, eng: "take place", kor: ["일어나다", "열리다", "일어나다, 열리다"] },
         { id: 188, eng: "take up", kor: ["~을 다루다", "을 다루다"] },
@@ -349,7 +349,6 @@
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
     
-    // 이 부분이 핵심입니다! 화면 로딩이 완전히 끝나면 안전하게 시작하도록 바꿨습니다.
     window.onload = function() {
         applyRange();
     };
