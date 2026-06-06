@@ -346,10 +346,132 @@
         } else {
             currentIndex++; showQuestion();
         }
+            function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
+
+    // =================================================================
+    // 💾 [자동 기억 및 오답노트 누적 시스템]
+    // =================================================================
+
+    // 1. 페이지가 처음 켜질 때: 화면에 [빨간색 오답노트 확인] 버튼을 자동으로 강제 주입합니다.
+    window.onload = function() {
+        const container = document.querySelector(".container");
+        
+        // 빨간색 오답노트 확인 버튼 생성
+        const viewWrongBtn = document.createElement("button");
+        viewWrongBtn.id = "global-wrong-btn";
+        viewWrongBtn.innerText = `📁 누적 오답노트 확인 (${getSavedWrongCount()}개)`;
+        viewWrongBtn.style.backgroundColor = "#e53935"; // 빨간색
+        viewWrongBtn.style.marginTop = "10px";
+        viewWrongBtn.style.width = "90%";
+        viewWrongBtn.onclick = startGlobalWrongQuiz;
+        
+        // 진행도 표시 레이블 바로 위에 장착
+        const scoreDisplay = document.getElementById("score-display");
+        container.insertBefore(viewWrongBtn, scoreDisplay);
+        
+        applyRange();
+    };
+
+    // 브라우저 메모리에 저장된 누적 오답 개수 가져오기
+    function getSavedWrongCount() {
+        const saved = localStorage.getItem("voca_total_wrong_list");
+        if (!saved) return 0;
+        try { return JSON.parse(saved).length; } catch(e) { return 0; }
     }
 
-    function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
-    applyRange();
+    // 채점 시 틀린 단어가 나오면 실시간으로 브라우저 메모리에 영구 누적 (기존 checkAnswer 보완)
+    const originalCheckAnswer = checkAnswer;
+    checkAnswer = function() {
+        if (currentIndex < quizList.length && !isAnswerChecked) {
+            const uInput = document.getElementById("user-input").value.trim();
+            const correctAnswers = quizList[currentIndex].kor;
+            const cleanString = str => str.replace(/[\s\~\=\-\_\[\]\(\)\,\.\?]/g, '');
+            const cleanInput = cleanString(uInput);
+            const isCorrect = correctAnswers.some(ans => cleanInput === cleanString(ans));
+
+            if (!isCorrect) {
+                saveToLocalStorage(quizList[currentIndex]);
+            }
+        }
+        originalCheckAnswer();
+    };
+
+    // 로컬 스토리지에 중복 없이 오답 누적 저장
+    function saveToLocalStorage(wordItem) {
+        let savedList = [];
+        const saved = localStorage.getItem("voca_total_wrong_list");
+        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+        
+        // 이미 저장된 단어가 아니면 추가
+        if (!savedList.some(item => item.id === wordItem.id)) {
+            savedList.push(wordItem);
+            localStorage.setItem("voca_total_wrong_list", JSON.stringify(savedList));
+            // 버튼 숫자 실시간 갱신
+            const btn = document.getElementById("global-wrong-btn");
+            if (btn) btn.innerText = `📁 누적 오답노트 확인 (${savedList.length}개)`;
+        }
+    }
+
+    // [빨간색 버튼] 클릭 시: 저장되어 있던 모든 누적 오답들만 섞어서 퀴즈 시작
+    function startGlobalWrongQuiz() {
+        let savedList = [];
+        const saved = localStorage.getItem("voca_total_wrong_list");
+        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+
+        if (savedList.length === 0) {
+            alert("저장된 누적 오답이 없습니다! 완벽해요! 🎉");
+            return;
+        }
+
+        quizList = shuffle([...savedList]);
+        wrongList = [];
+        currentIndex = 0;
+        
+        document.getElementById("mode-display").innerText = `🔥 누적 오답 집중 복습 (${savedList.length}개)`;
+        document.getElementById("wrong-btn").style.display = "none"; // 기본 오답버튼은 숨김
+        
+        // 퀴즈 화면 초기화 및 첫 문제 시작
+        const userInput = document.getElementById("user-input");
+        userInput.style.display = "inline-block";
+        userInput.value = "";
+        document.getElementById("result-display").style.display = "none";
+        
+        showQuestion();
+    }
+
+    // 2. 한 바퀴가 끝났을 때: 기존 질문을 없애고 자동 보관 안내 및 다시 하기 유도 (showQuestion 보완)
+    const originalShowQuestion = showQuestion;
+    showQuestion = function() {
+        if (quizList.length > 0 && currentIndex >= quizList.length) {
+            const resultDiv = document.getElementById("result-display");
+            const userInput = document.getElementById("user-input");
+            
+            userInput.style.display = "none";
+            document.getElementById("action-btn").innerText = "이 범위로 다시 하기";
+            resultDiv.style.display = "block";
+            
+            // 기존 누적 개수 버튼 갱신
+            const totalCount = getSavedWrongCount();
+            const btn = document.getElementById("global-wrong-btn");
+            if (btn) btn.innerText = `📁 누적 오답노트 확인 (${totalCount}개)`;
+
+            if (wrongList.length > 0) {
+                document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
+                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 누적 오답노트에 안전하게 저장되었습니다!<br><br>언제든 아래 빨간색 버튼을 눌러 복습할 수 있습니다.`;
+                resultDiv.className = "result incorrect";
+            } else {
+                document.getElementById("word-display").innerText = "🎉 범위 마스터!";
+                resultDiv.innerHTML = "해당 구간의 틀린 단어가 없습니다. 완벽해요! 🔥";
+                resultDiv.className = "result correct";
+            }
+            
+            document.getElementById("wrong-btn").style.display = "none"; // 구형 오답 버튼 차단
+            return;
+        }
+        originalShowQuestion();
+    };
+
 </script>
 </body>
 </html>
+
