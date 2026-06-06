@@ -9,32 +9,15 @@
         .container { max-width: 500px; margin: 20px auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
         h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; }
         .sub-title { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
-        
-        /* 범위 설정 */
         .range-setter { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         .range-setter label { font-size: 14px; color: #495057; font-weight: bold; margin: 0 5px; }
         .range-setter input { width: 60px; padding: 6px; font-size: 15px; border: 1px solid #ced4da; border-radius: 6px; text-align: center; }
         .btn-setting { background-color: #6c757d; color: white; border: none; padding: 6px 12px; font-size: 14px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold; }
-        
         .mode-badge { display: inline-block; padding: 6px 14px; font-size: 13px; font-weight: bold; border-radius: 30px; margin-bottom: 25px; background-color: #e3f2fd; color: #1e88e5; }
         .word { font-size: 34px; font-weight: bold; color: #1a73e8; margin-bottom: 25px; min-height: 50px; word-break: break-word; }
         input[type="text"] { width: 85%; padding: 14px; font-size: 18px; border: 2px solid #ced4da; border-radius: 12px; outline: none; text-align: center; }
-        
-        /* 버튼 공통 */
         button { margin-top: 15px; padding: 14px; font-size: 18px; font-weight: bold; background-color: #1a73e8; color: white; border: none; border-radius: 12px; cursor: pointer; width: 90%; }
-        
-        /* 오답 제어판 섹션 (빨간색) */
-        .wrong-control-panel { margin-top: 25px; padding-top: 15px; border-top: 2px dashed #ffe3e3; }
-        .btn-wrong-view { background-color: #e53935; font-size: 15px; padding: 10px; width: 43%; margin: 5px 2%; display: inline-block; }
-        .btn-wrong-test { background-color: #c62828; font-size: 15px; padding: 10px; width: 43%; margin: 5px 2%; display: inline-block; }
-        
-        /* 오답 확인 모달 리스트 */
-        .wrong-list-container { text-align: left; margin-top: 15px; max-height: 250px; overflow-y: auto; background: #fff5f5; padding: 15px; border-radius: 10px; border: 1px solid #ffe3e3; display: none; }
-        .wrong-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed #fcc4c4; font-size: 15px; }
-        .wrong-num { font-size: 12px; color: #7f8c8d; font-weight: bold; background: #ebd5d5; padding: 2px 6px; border-radius: 4px; margin-right: 6px; }
-        .wrong-item span { font-weight: bold; color: #c62828; }
-        .btn-del { background: #6c757d; color: white; border: none; padding: 3px 8px; font-size: 12px; border-radius: 4px; width: auto; margin: 0; cursor: pointer; }
-        
+        .btn-wrong { background-color: #e53935; margin-top: 12px; }
         .result { margin-top: 20px; font-size: 18px; font-weight: bold; min-height: 40px; line-height: 1.5; padding: 10px; border-radius: 8px; display: none; }
         .correct { color: #2e7d32; background-color: #e8f5e9; }
         .incorrect { color: #c62828; background-color: #ffebee; }
@@ -59,13 +42,7 @@
     <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
     <br>
     <button onclick="checkAnswer()" id="action-btn">정답 확인</button>
-    
-    <div class="wrong-control-panel">
-        <button onclick="toggleWrongList()" class="btn-wrong-view">내 오답노트 보기</button>
-        <button onclick="startWrongQuiz()" id="wrong-test-btn" class="btn-wrong-test" style="display: none;">오답만 시험보기</button>
-        <div id="wrong-list-box" class="wrong-list-container"></div>
-    </div>
-
+    <button onclick="startWrongQuiz()" id="wrong-btn" class="btn-wrong" style="display: none;">틀린 단어만 복습하기</button>
     <div class="result" id="result-display"></div>
     <div class="score" id="score-display">진행도: 0 / 200</div>
 </div>
@@ -252,7 +229,7 @@
         { id: 179, eng: "strike up", kor: ["시작하다"] },
         { id: 180, eng: "subjective", kor: ["주관적인"] },
         { id: 181, eng: "substantially", kor: ["크게", "상당히", "크게, 상당히"] },
-        { id: 182, eng: "subtle", kor: ["미묘한"] },
+        { id: 182, eng: "subtle", ear: ["미묘한"] },
         { id: 183, eng: "supplementary", kor: ["보충적인"] },
         { id: 184, eng: "suspicion", kor: ["의심"] },
         { id: 185, eng: "sustainable", kor: ["지속 가능한"] },
@@ -273,14 +250,8 @@
         { id: 200, eng: "yield to", kor: ["~으로 대체되다", 으로 대체되다"] }
     ];
 
-    let wrongList = [];
-    let currentRangeList = [];
-    let quizList = [], roundWrongList = [], currentIndex = 0, isAnswerChecked = false;
-    let isWrongOnlyMode = false;
-
-    if(localStorage.getItem("voca_auto_wrongs")) {
-        wrongList = JSON.parse(localStorage.getItem("voca_auto_wrongs"));
-    }
+    let currentRangeList = [...masterWordList];
+    let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
 
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -297,60 +268,42 @@
         if (start > end) { alert("시작 번호가 끝 번호보다 클 수 없습니다."); return; }
         currentRangeList = masterWordList.filter(item => item.id >= start && item.id <= end);
         document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번 구간)`;
-        isWrongOnlyMode = false;
         initQuiz();
     }
 
     function initQuiz() {
-        quizList = shuffle([...currentRangeList]);
-        roundWrongList = []; 
-        currentIndex = 0;
-        updateWrongTestButton();
+        quizList = shuffle([...currentRangeList]); wrongList = []; currentIndex = 0;
+        document.getElementById("wrong-btn").style.display = "none";
         showQuestion();
     }
 
     function startWrongQuiz() {
-        if(wrongList.length === 0) return;
-        quizList = shuffle([...wrongList]);
-        roundWrongList = [];
-        currentIndex = 0;
-        isWrongOnlyMode = true;
-        document.getElementById("mode-display").innerText = `🔥 오답 집중 복습 (${quizList.length}단어)`;
+        quizList = shuffle([...wrongList]); wrongList = []; currentIndex = 0;
+        document.getElementById("mode-display").innerText = "🔥 오답 집중 복습 모드";
+        document.getElementById("wrong-btn").style.display = "none";
         showQuestion();
     }
 
     function showQuestion() {
         const resultDiv = document.getElementById("result-display");
         const userInput = document.getElementById("user-input");
-        
         if (currentIndex >= quizList.length) {
             userInput.style.display = "none";
-            document.getElementById("action-btn").innerText = isWrongOnlyMode ? "오답 다시 풀기" : "이 범위로 다시 하기";
+            document.getElementById("action-btn").innerText = "이 범위로 다시 하기";
             resultDiv.style.display = "block";
-            
-            if (!isWrongOnlyMode) {
-                roundWrongList.forEach(item => {
-                    if(!wrongList.some(w => w.id === item.id)) {
-                        wrongList.push(item);
-                    }
-                });
-                localStorage.setItem("voca_auto_wrongs", JSON.stringify(wrongList));
-            }
-            
             if (wrongList.length > 0) {
-                document.getElementById("word-display").innerText = "✍️ 라운드 종료";
-                resultDiv.innerHTML = `현재 누적된 오답노트에 <b>${wrongList.length}개</b>의 단어가 있습니다.<br>아래 '오답만 시험보기'로 복습해보세요!`;
+                document.getElementById("word-display").innerText = "✍️ 오답 정리 타임";
+                resultDiv.innerHTML = `선택 범위에서 <b>${wrongList.length}개</b> 틀렸습니다.<br>오답 노트를 진행해보세요!`;
                 resultDiv.className = "result incorrect";
+                document.getElementById("wrong-btn").style.display = "inline-block";
+                document.getElementById("wrong-btn").innerText = `틀린 단어만 풀기 (${wrongList.length}개)`;
             } else {
-                document.getElementById("word-display").innerText = "🎉 완벽 마스터!";
-                resultDiv.innerHTML = "틀린 단어가 한 개도 없습니다. 완벽해요! 🔥";
+                document.getElementById("word-display").innerText = "🎉 범위 마스터!";
+                resultDiv.innerHTML = "해당 구간의 틀린 단어가 없습니다. 완벽해요! 🔥";
                 resultDiv.className = "result correct";
             }
-            updateWrongTestButton();
-            if(document.getElementById("wrong-list-box").style.display === "block") renderWrongList();
             return;
         }
-        
         document.getElementById("word-display").innerText = quizList[currentIndex].eng;
         userInput.value = "";
         userInput.style.display = "inline-block";
@@ -358,14 +311,12 @@
         document.getElementById("action-btn").innerText = "정답 확인";
         document.getElementById("score-display").innerText = `진행도: ${currentIndex} / ${quizList.length}`;
         isAnswerChecked = false;
+        
         setTimeout(() => { userInput.focus(); }, 50);
     }
 
     function checkAnswer() {
-        if (currentIndex >= quizList.length) { 
-            if(isWrongOnlyMode) startWrongQuiz(); else initQuiz(); 
-            return; 
-        }
+        if (currentIndex >= quizList.length) { initQuiz(); return; }
         const btn = document.getElementById("action-btn");
         const resultDiv = document.getElementById("result-display");
 
@@ -373,24 +324,20 @@
             const uInput = document.getElementById("user-input").value.trim();
             const correctAnswers = quizList[currentIndex].kor;
             
+            // 공백과 부호들을 안전하게 지우고 완전히 글자가 100% 같아야 하는 강력한 채점 방식
             const cleanString = str => str.replace(/[\s\~\=\-\_\[\]\(\)\,\.\?]/g, '');
             const cleanInput = cleanString(uInput);
+            
             const isCorrect = correctAnswers.some(ans => cleanInput === cleanString(ans));
 
             resultDiv.style.display = "block";
             if (isCorrect) {
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers[0]})`;
                 resultDiv.className = "result correct";
-                if(isWrongOnlyMode) {
-                    wrongList = wrongList.filter(w => w.id !== quizList[currentIndex].id);
-                    localStorage.setItem("voca_auto_wrongs", JSON.stringify(wrongList));
-                }
             } else {
                 resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers[0]})`;
                 resultDiv.className = "result incorrect";
-                if(!isWrongOnlyMode) {
-                    roundWrongList.push(quizList[currentIndex]);
-                }
+                wrongList.push(quizList[currentIndex]);
             }
             btn.innerText = "다음 문제"; isAnswerChecked = true;
         } else {
@@ -398,54 +345,9 @@
         }
     }
 
-    function renderWrongList() {
-        const box = document.getElementById("wrong-list-box");
-        if(wrongList.length === 0) {
-            box.innerHTML = "<div style='color:#666;text-align:center;padding:10px;'>오답노트가 비어있습니다.</div>";
-            return;
-        }
-        let html = "";
-        const sortedWrongs = [...wrongList].sort((a, b) => a.id - b.id);
-        
-        sortedWrongs.forEach((item) => {
-            html += `<div class="wrong-item">
-                <div><span class="wrong-num">${item.id}번</span> <b>${item.eng}</b> : ${item.kor[0]}</div>
-                <button class="btn-del" onclick="deleteWrongItem(${item.id})">삭제</button>
-            </div>`;
-        });
-        box.innerHTML = html;
-    }
-
-    function toggleWrongList() {
-        const box = document.getElementById("wrong-list-box");
-        if(box.style.display === "block") {
-            box.style.display = "none";
-        } else {
-            box.style.display = "block";
-            renderWrongList();
-        }
-    }
-
-    function deleteWrongItem(id) {
-        wrongList = wrongList.filter(w => w.id !== id);
-        localStorage.setItem("voca_auto_wrongs", JSON.stringify(wrongList));
-        renderWrongList();
-        updateWrongTestButton();
-    }
-
-    function updateWrongTestButton() {
-        const btn = document.getElementById("wrong-test-btn");
-        if(wrongList.length > 0) {
-            btn.style.display = "inline-block";
-            btn.innerText = `오답만 시험보기 (${wrongList.length})`;
-        } else {
-            btn.style.display = "none";
-        }
-    }
-
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
     
-    // HTML 화면 요소를 전부 다 안전하게 그린 뒤 자바스크립트를 구동시키는 안전한 로직
+    // 모바일 멈춤 해결용 화면 드로잉 완료 후 실행 설정
     window.onload = function() {
         applyRange();
     };
