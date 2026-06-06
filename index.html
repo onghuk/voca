@@ -278,6 +278,7 @@
     let quizList = [], roundWrongList = [], currentIndex = 0, isAnswerChecked = false;
     let isWrongOnlyMode = false;
 
+    // 로컬 스토리지 복원
     if(localStorage.getItem("voca_auto_wrongs")) {
         wrongList = JSON.parse(localStorage.getItem("voca_auto_wrongs"));
     }
@@ -444,6 +445,8 @@
     }
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
+    
+    // ★ [핵심] 먹통 문제 해결: 키자마자 퀴즈 최초 구동
     applyRange();
 </script>
 </body>
