@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3학년 수능특강 영단어 퀴즈 v2</title>
+    <title>3학년 수능특강 영단어 퀴즈</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; min-height: 100vh; position: relative; box-sizing: border-box; }
-        .container { max-width: 500px; margin: 20px auto 60px auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; box-sizing: border-box; }
+        .container { max-width: 500px; margin: 20px auto 20px auto; background: white; padding: 25px 20px 45px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); position: relative; }
         h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; display: inline-block; }
-        .sub-title { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
+        .sub-title { color: #1a73e8; font-size: 15px; margin-bottom: 15px; font-weight: bold; }
         
-        /* 🏷️ v2 배지 스타일 */
         .version-badge { display: inline-block; font-size: 11px; background: #1a73e8; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 5px; font-weight: bold; }
         
-        /* 👑 우측 하단 크레딧 스타일 */
-        .credit { position: fixed; bottom: 12px; right: 15px; font-size: 11px; color: #a0aec0; font-weight: 500; user-select: none; z-index: 999; }
+        /* 👑 하얀색 블록 내부 우측 하단으로 이사 온 크레딧 */
+        .container-credit { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: #7f8c8d; font-weight: bold; user-select: none; }
         
         /* 로그인 화면 스타일 */
         .login-box { padding: 30px 20px; background: #fff; border-radius: 12px; }
@@ -54,7 +53,6 @@
         .wrong-table td { padding: 10px; border-bottom: 1px solid #f1f3f5; word-break: break-all; vertical-align: middle; }
         .wrong-table tr:last-child td { border-bottom: none; }
         
-        /* 🗑️ 오답 삭제 버튼 스타일 */
         .btn-delete-item { background: #f1f3f5; color: #e53935; border: 1px solid #dee2e6; padding: 3px 7px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; transition: all 0.2s; }
         .btn-delete-item:hover { background: #e53935; color: white; border-color: #e53935; }
 
@@ -67,7 +65,7 @@
 <body>
 <div class="container">
     <h2>3학년 수능특강 영단어<span class="version-badge">ver2</span></h2>
-    <div class="sub-title">완벽 오답노트 무한복습 프로그램</div>
+    <div class="sub-title">3학년 영단어 수행평가 대비</div>
     
     <div id="login-section" class="login-box">
         <input type="number" id="student-id" class="login-input" placeholder="학번 입력 (예: 30101)" onkeypress="handleLoginPress(event)">
@@ -122,9 +120,9 @@
             <button onclick="startGlobalWrongQuiz()" class="btn-start-wrong">🔥 오답 퀴즈 시작</button>
         </div>
     </div>
-</div>
 
-<div class="credit">made by 조용혁</div>
+    <div class="container-credit">made by 조용혁</div>
+</div>
 
 <script>
     const masterWordList = [
@@ -192,7 +190,7 @@
         { id: 62, eng: "downright", kor: ["매우", "아주"] },
         { id: 63, eng: "dynamics", kor: ["역학"] },
         { id: 64, eng: "eliminate", kor: ["제거하다"] },
-        { id: 65, eng: " उभरते हुए (emerging)", eng: "emerging", kor: ["새로 나타나는"] },
+        { id: 65, eng: "emerging", kor: ["새로 나타나는"] },
         { id: 66, eng: "emission", kor: ["배출"] },
         { id: 67, eng: "encounter", kor: ["접하다", "마주치다"] },
         { id: 68, eng: "engage in", kor: ["~에 참여하다"] },
@@ -342,9 +340,31 @@
         return array;
     }
 
+    // 🔑 요구사항 반영: 학번 30으로 시작 및 번호 30 이하 정밀 필터링 로직
     function login() {
         const idInput = document.getElementById("student-id").value.trim();
+        
         if (!idInput) { alert("학번을 입력해주세요!"); return; }
+        
+        // 글자수나 형식 검환용 체크 (최소 5자리 숫자 체크)
+        if (idInput.length < 5) {
+            alert("정확한 5자리 학번을 입력해주세요! (예: 30101)");
+            return;
+        }
+
+        // 학번 앞 2자리가 30으로 시작하는지 판별
+        if (!idInput.startsWith("30")) {
+            alert("3학년만 로그인할 수 있습니다.\n학번은 반드시 30으로 시작해야 합니다.");
+            return;
+        }
+
+        // 학번 뒤의 3자리 중 반/번호 파트 추출 (30121 -> 121 추출 후 뒤의 2자리인 '21'번 파정)
+        const lastPart = parseInt(idInput.substring(3)); // 학번의 마지막 2자리 (번호 파트)
+        if (isNaN(lastPart) || lastPart > 30) {
+            alert("존재하지 않는 번호입니다.\n번호는 30번을 넘을 수 없습니다.");
+            return;
+        }
+
         currentUser = idInput;
         document.getElementById("user-display").innerText = `👤 학번: ${currentUser}`;
         
@@ -381,13 +401,10 @@
         if (btn) btn.innerText = `오답노트 (${count})`;
     }
 
-    // 📁 오답 리스트 화면 열기 (🔢 번호순 오름차순 정렬 및 🗑️ 삭제 기능 연동)
     function openWrongListScreen() {
         if (!currentUser) return;
         
         let savedList = getSavedWrongList();
-
-        // 요구사항: 번호(id) 순서대로 정렬해서 이쁘게 보여주기
         savedList.sort((a, b) => a.id - b.id);
 
         const tbody = document.getElementById("wrong-table-body");
@@ -414,16 +431,12 @@
         document.getElementById("wrong-list-section").style.display = "block";
     }
 
-    // 🗑️ 오답 리스트에서 특정 단어 개별 삭제하는 함수
     function deleteWrongItem(id) {
         if (!currentUser) return;
         let savedList = getSavedWrongList();
-        
-        // 클릭한 id를 제외한 나머지만 남기기
         savedList = savedList.filter(item => item.id !== id);
         localStorage.setItem(getStorageKey(), JSON.stringify(savedList));
         
-        // 실시간 UI 갱신
         updateGlobalWrongBtnCount();
         openWrongListScreen();
     }
