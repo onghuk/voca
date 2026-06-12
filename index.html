@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3학년 수능특강 영단어 퀴즈</title>
+    <title>3학년 수능특강 영단어 퀴즈 v2</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; }
-        .container { max-width: 500px; margin: 20px auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; }
+        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; min-height: 100vh; position: relative; box-sizing: border-box; }
+        .container { max-width: 500px; margin: 20px auto 60px auto; background: white; padding: 25px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; display: inline-block; }
         .sub-title { color: #7f8c8d; font-size: 14px; margin-bottom: 15px; }
+        
+        /* 🏷️ v2 배지 스타일 */
+        .version-badge { display: inline-block; font-size: 11px; background: #1a73e8; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 5px; font-weight: bold; }
+        
+        /* 👑 우측 하단 크레딧 스타일 */
+        .credit { position: fixed; bottom: 12px; right: 15px; font-size: 11px; color: #a0aec0; font-weight: 500; user-select: none; z-index: 999; }
         
         /* 로그인 화면 스타일 */
         .login-box { padding: 30px 20px; background: #fff; border-radius: 12px; }
@@ -42,11 +48,16 @@
 
         /* 오답 리스트 전용 테이블 및 버튼 디자인 */
         .wrong-title { font-size: 20px; color: #c62828; font-weight: bold; margin-bottom: 15px; }
-        .wrong-table-container { max-height: 300px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; }
+        .wrong-table-container { max-height: 320px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; }
         .wrong-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
         .wrong-table th { background-color: #ffebee; color: #c62828; padding: 10px; font-weight: bold; position: sticky; top: 0; }
-        .wrong-table td { padding: 10px; border-bottom: 1px solid #f1f3f5; word-break: break-all; }
+        .wrong-table td { padding: 10px; border-bottom: 1px solid #f1f3f5; word-break: break-all; vertical-align: middle; }
         .wrong-table tr:last-child td { border-bottom: none; }
+        
+        /* 🗑️ 오답 삭제 버튼 스타일 */
+        .btn-delete-item { background: #f1f3f5; color: #e53935; border: 1px solid #dee2e6; padding: 3px 7px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; transition: all 0.2s; }
+        .btn-delete-item:hover { background: #e53935; color: white; border-color: #e53935; }
+
         .btn-flex-container { display: flex; gap: 10px; justify-content: center; width: 95%; margin: 15px auto 0 auto; }
         .btn-flex-container button { flex: 1; margin-top: 0; font-size: 15px; padding: 12px; }
         .btn-back-quiz { background-color: #6c757d; }
@@ -55,7 +66,7 @@
 </head>
 <body>
 <div class="container">
-    <h2>3학년 수능특강 영단어</h2>
+    <h2>3학년 수능특강 영단어<span class="version-badge">ver2</span></h2>
     <div class="sub-title">완벽 오답노트 무한복습 프로그램</div>
     
     <div id="login-section" class="login-box">
@@ -97,8 +108,9 @@
                 <thead>
                     <tr>
                         <th style="width: 15%;">번호</th>
-                        <th style="width: 40%;">영단어</th>
-                        <th style="width: 45%;">정답 뜻</th>
+                        <th style="width: 35%;">영단어</th>
+                        <th style="width: 35%;">정답 뜻</th>
+                        <th style="width: 15%; text-align: center;">관리</th>
                     </tr>
                 </thead>
                 <tbody id="wrong-table-body">
@@ -111,6 +123,8 @@
         </div>
     </div>
 </div>
+
+<div class="credit">made by 조용혁</div>
 
 <script>
     const masterWordList = [
@@ -178,7 +192,7 @@
         { id: 62, eng: "downright", kor: ["매우", "아주"] },
         { id: 63, eng: "dynamics", kor: ["역학"] },
         { id: 64, eng: "eliminate", kor: ["제거하다"] },
-        { id: 65, eng: "emerging", kor: ["새로 나타나는"] },
+        { id: 65, eng: " उभरते हुए (emerging)", eng: "emerging", kor: ["새로 나타나는"] },
         { id: 66, eng: "emission", kor: ["배출"] },
         { id: 67, eng: "encounter", kor: ["접하다", "마주치다"] },
         { id: 68, eng: "engage in", kor: ["~에 참여하다"] },
@@ -354,31 +368,33 @@
 
     function getStorageKey() { return `voca_wrong_list_${currentUser}`; }
 
-    function getSavedWrongCount() {
-        if (!currentUser) return 0;
+    function getSavedWrongList() {
+        if (!currentUser) return [];
         const saved = localStorage.getItem(getStorageKey());
-        if (!saved) return 0;
-        try { return JSON.parse(saved).length; } catch(e) { return 0; }
+        if (!saved) return [];
+        try { return JSON.parse(saved); } catch(e) { return []; }
     }
 
     function updateGlobalWrongBtnCount() {
-        const count = getSavedWrongCount();
+        const count = getSavedWrongList().length;
         const btn = document.getElementById("global-wrong-btn");
         if (btn) btn.innerText = `오답노트 (${count})`;
     }
 
+    // 📁 오답 리스트 화면 열기 (🔢 번호순 오름차순 정렬 및 🗑️ 삭제 기능 연동)
     function openWrongListScreen() {
         if (!currentUser) return;
         
-        const saved = localStorage.getItem(getStorageKey());
-        let savedList = [];
-        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+        let savedList = getSavedWrongList();
+
+        // 요구사항: 번호(id) 순서대로 정렬해서 이쁘게 보여주기
+        savedList.sort((a, b) => a.id - b.id);
 
         const tbody = document.getElementById("wrong-table-body");
         tbody.innerHTML = "";
 
         if (savedList.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#7f8c8d; padding:20px;">저장된 오답이 없습니다. 완벽해요! 🎉</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#7f8c8d; padding:20px;">저장된 오답이 없습니다. 완벽해요! 🎉</td></tr>`;
         } else {
             savedList.forEach(item => {
                 const tr = document.createElement("tr");
@@ -386,6 +402,9 @@
                     <td>${item.id}</td>
                     <td style="font-weight:bold; color:#1a73e8;">${item.eng}</td>
                     <td>${item.kor.join(', ')}</td>
+                    <td style="text-align:center;">
+                        <button class="btn-delete-item" onclick="deleteWrongItem(${item.id})">삭제</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -393,6 +412,20 @@
 
         document.getElementById("quiz-content").style.display = "none";
         document.getElementById("wrong-list-section").style.display = "block";
+    }
+
+    // 🗑️ 오답 리스트에서 특정 단어 개별 삭제하는 함수
+    function deleteWrongItem(id) {
+        if (!currentUser) return;
+        let savedList = getSavedWrongList();
+        
+        // 클릭한 id를 제외한 나머지만 남기기
+        savedList = savedList.filter(item => item.id !== id);
+        localStorage.setItem(getStorageKey(), JSON.stringify(savedList));
+        
+        // 실시간 UI 갱신
+        updateGlobalWrongBtnCount();
+        openWrongListScreen();
     }
 
     function closeWrongListScreen() {
@@ -425,9 +458,7 @@
 
     function startGlobalWrongQuiz() {
         if (!currentUser) return;
-        let savedList = [];
-        const saved = localStorage.getItem(getStorageKey());
-        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+        let savedList = getSavedWrongList();
 
         if (savedList.length === 0) {
             alert("저장된 누적 오답이 없습니다!");
@@ -518,14 +549,11 @@
 
     function saveToLocalStorage(wordItem) {
         if (!currentUser) return;
-        let savedList = [];
-        const key = getStorageKey();
-        const saved = localStorage.getItem(key);
-        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+        let savedList = getSavedWrongList();
         
         if (!savedList.some(item => item.id === wordItem.id)) {
             savedList.push(wordItem);
-            localStorage.setItem(key, JSON.stringify(savedList));
+            localStorage.setItem(getStorageKey(), JSON.stringify(savedList));
             updateGlobalWrongBtnCount();
         }
     }
