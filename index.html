@@ -12,17 +12,18 @@
         
         /* 로그인 화면 스타일 */
         .login-box { padding: 30px 20px; background: #fff; border-radius: 12px; }
-        .login-box p { color: #5f6368; font-size: 15px; margin-bottom: 20px; line-height: 1.4; }
         .login-input { width: 80%; padding: 12px; font-size: 18px; border: 2px solid #ced4da; border-radius: 10px; text-align: center; outline: none; }
         .login-input:focus { border-color: #1a73e8; }
-        .btn-login { background-color: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 10px; cursor: pointer; width: 85%; margin-top: 15px; font-weight: bold; }
+        .btn-login { background-color: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 10px; cursor: pointer; width: 85%; margin-top: 20px; font-weight: bold; }
         
-        /* 퀴즈 메인 콘텐츠 (처음엔 숨김) */
-        #quiz-content { display: none; }
+        /* 화면 제어용 섹션 숨김 스타일 */
+        #quiz-content, #wrong-list-section { display: none; }
         
-        /* 상단 유저 바 */
-        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 14px; font-weight: bold; color: #1a73e8; }
-        .btn-logout { background: none; border: none; color: #5f6368; font-size: 13px; cursor: pointer; padding: 0; margin: 0; width: auto; font-weight: normal; }
+        /* 상단 유저 바 & 조그만 오답 버튼 */
+        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 10px 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; font-weight: bold; color: #1a73e8; }
+        .user-bar-left { display: flex; align-items: center; gap: 8px; }
+        .btn-mini-wrong { background-color: #e53935; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; }
+        .btn-logout { background: none; border: none; color: #5f6368; font-size: 12px; cursor: pointer; padding: 0; margin: 0; width: auto; font-weight: normal; }
         .btn-logout:hover { text-decoration: underline; color: #c62828; }
 
         .range-setter { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e9ecef; }
@@ -34,14 +35,22 @@
         input[type="text"] { width: 85%; padding: 14px; font-size: 18px; border: 2px solid #ced4da; border-radius: 12px; outline: none; text-align: center; }
         button { margin-top: 15px; padding: 14px; font-size: 18px; font-weight: bold; background-color: #1a73e8; color: white; border: none; border-radius: 12px; cursor: pointer; width: 90%; }
         
-        /* 빨간색 누적 오답노트용 버튼 스타일 */
-        .btn-global-wrong { background-color: #e53935; margin-top: 10px; }
-        .btn-global-wrong:hover { background-color: #d32f2f; }
-
         .result { margin-top: 20px; font-size: 18px; font-weight: bold; min-height: 40px; line-height: 1.5; padding: 10px; border-radius: 8px; display: none; }
         .correct { color: #2e7d32; background-color: #e8f5e9; }
         .incorrect { color: #c62828; background-color: #ffebee; }
         .score { margin-top: 25px; font-size: 14px; color: #5f6368; font-weight: bold; }
+
+        /* 오답 리스트 전용 테이블 및 버튼 디자인 */
+        .wrong-title { font-size: 20px; color: #c62828; font-weight: bold; margin-bottom: 15px; }
+        .wrong-table-container { max-height: 300px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; }
+        .wrong-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
+        .wrong-table th { background-color: #ffebee; color: #c62828; padding: 10px; font-weight: bold; position: sticky; top: 0; }
+        .wrong-table td { padding: 10px; border-bottom: 1px solid #f1f3f5; word-break: break-all; }
+        .wrong-table tr:last-child td { border-bottom: none; }
+        .btn-flex-container { display: flex; gap: 10px; justify-content: center; width: 95%; margin: 15px auto 0 auto; }
+        .btn-flex-container button { flex: 1; margin-top: 0; font-size: 15px; padding: 12px; }
+        .btn-back-quiz { background-color: #6c757d; }
+        .btn-start-wrong { background-color: #e53935; }
     </style>
 </head>
 <body>
@@ -50,15 +59,17 @@
     <div class="sub-title">완벽 오답노트 무한복습 프로그램</div>
     
     <div id="login-section" class="login-box">
-        <p>학번을 입력하여 로그인해 주세요.<br>비밀번호 없이 학번별 오답노트가 자동 보관됩니다.</p>
-        <input type="number" id="student-id" class="login-input" placeholder="예: 30101" onkeypress="handleLoginPress(event)">
+        <input type="number" id="student-id" class="login-input" placeholder="학번 입력 (예: 30101)" onkeypress="handleLoginPress(event)">
         <br>
-        <button class="btn-login" onclick="login()">로그인하여 시작하기</button>
+        <button class="btn-login" onclick="login()">퀴즈 시작하기</button>
     </div>
 
     <div id="quiz-content">
         <div class="user-bar">
-            <span id="user-display">👤 학번: </span>
+            <div class="user-bar-left">
+                <span id="user-display">👤 학번: </span>
+                <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">오답노트 (0)</button>
+            </div>
             <button class="btn-logout" onclick="logout()">로그아웃</button>
         </div>
 
@@ -75,9 +86,29 @@
         <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
         <br>
         <button onclick="checkAnswer()" id="action-btn">정답 확인</button>
-        <button onclick="startGlobalWrongQuiz()" id="global-wrong-btn" class="btn-global-wrong">📁 누적 오답노트 확인 (0개)</button>
         <div class="result" id="result-display"></div>
         <div class="score" id="score-display">진행도: 0 / 200</div>
+    </div>
+
+    <div id="wrong-list-section">
+        <div class="wrong-title">❌ 내 누적 오답 리스트</div>
+        <div class="wrong-table-container">
+            <table class="wrong-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">번호</th>
+                        <th style="width: 40%;">영단어</th>
+                        <th style="width: 45%;">정답 뜻</th>
+                    </tr>
+                </thead>
+                <tbody id="wrong-table-body">
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-flex-container">
+            <button onclick="closeWrongListScreen()" class="btn-back-quiz">🔙 일반 퀴즈로 돌아가기</button>
+            <button onclick="startGlobalWrongQuiz()" class="btn-start-wrong">🔥 오답 퀴즈 시작</button>
+        </div>
     </div>
 </div>
 
@@ -128,7 +159,7 @@
         { id: 43, eng: "conversely", kor: ["반대로"] },
         { id: 44, eng: "convince", kor: ["납득시키다"] },
         { id: 45, eng: "coordinate", kor: ["조정하다"] },
-        { id: 46, font_family: "sans-serif", eng: "courtesy", kor: ["예의"] },
+        { id: 46, eng: "courtesy", kor: ["예의"] },
         { id: 47, eng: "criticize", kor: ["비판하다"] },
         { id: 48, eng: "cultured", kor: ["배양한"] },
         { id: 49, eng: "custom", kor: ["관행", "관습"] },
@@ -190,7 +221,7 @@
         { id: 105, eng: "influential", kor: ["영향력 있는"] },
         { id: 106, eng: "informant", kor: ["정보 제공자"] },
         { id: 107, eng: "insurance", kor: ["보험"] },
-        { id: 108, font_family: "sans-serif", eng: "interference", kor: ["간섭"] },
+        { id: 108, eng: "interference", kor: ["간섭"] },
         { id: 109, eng: "intervention", kor: ["개입"] },
         { id: 110, eng: "intimate", kor: ["친밀한"] },
         { id: 111, eng: "invisible", kor: ["보이지 않는"] },
@@ -287,7 +318,7 @@
 
     let currentRangeList = [...masterWordList];
     let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
-    let currentUser = ""; // 현재 로그인한 학생 학번
+    let currentUser = "";
 
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -297,41 +328,32 @@
         return array;
     }
 
-    // 🔑 로그인 처리 함수
     function login() {
         const idInput = document.getElementById("student-id").value.trim();
-        if (!idInput) {
-            alert("학번을 입력해주세요!");
-            return;
-        }
+        if (!idInput) { alert("학번을 입력해주세요!"); return; }
         currentUser = idInput;
         document.getElementById("user-display").innerText = `👤 학번: ${currentUser}`;
         
-        // 화면 전환
         document.getElementById("login-section").style.display = "none";
         document.getElementById("quiz-content").style.display = "block";
+        document.getElementById("wrong-list-section").style.display = "none";
         
-        // 해당 학번의 누적 오답 카운트 갱신 후 시작
         updateGlobalWrongBtnCount();
         applyRange();
     }
 
     function handleLoginPress(event) { if (event.key === "Enter") login(); }
 
-    // 🚪 로그아웃 처리 함수
     function logout() {
         currentUser = "";
         document.getElementById("student-id").value = "";
         document.getElementById("login-section").style.display = "block";
         document.getElementById("quiz-content").style.display = "none";
+        document.getElementById("wrong-list-section").style.display = "none";
     }
 
-    // 💾 특정 학번의 로컬 스토리지 키 관리
-    function getStorageKey() {
-        return `voca_wrong_list_${currentUser}`;
-    }
+    function getStorageKey() { return `voca_wrong_list_${currentUser}`; }
 
-    // 누적 오답 갯수 반환
     function getSavedWrongCount() {
         if (!currentUser) return 0;
         const saved = localStorage.getItem(getStorageKey());
@@ -339,11 +361,47 @@
         try { return JSON.parse(saved).length; } catch(e) { return 0; }
     }
 
-    // 빨간색 누적 오답 버튼의 텍스트 개수 갱신
     function updateGlobalWrongBtnCount() {
         const count = getSavedWrongCount();
         const btn = document.getElementById("global-wrong-btn");
-        if (btn) btn.innerText = `📁 누적 오답노트 확인 (${count}개)`;
+        if (btn) btn.innerText = `오답노트 (${count})`;
+    }
+
+    function openWrongListScreen() {
+        if (!currentUser) return;
+        
+        const saved = localStorage.getItem(getStorageKey());
+        let savedList = [];
+        if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
+
+        const tbody = document.getElementById("wrong-table-body");
+        tbody.innerHTML = "";
+
+        if (savedList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#7f8c8d; padding:20px;">저장된 오답이 없습니다. 완벽해요! 🎉</td></tr>`;
+        } else {
+            savedList.forEach(item => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${item.id}</td>
+                    <td style="font-weight:bold; color:#1a73e8;">${item.eng}</td>
+                    <td>${item.kor.join(', ')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.getElementById("quiz-content").style.display = "none";
+        document.getElementById("wrong-list-section").style.display = "block";
+    }
+
+    function closeWrongListScreen() {
+        document.getElementById("wrong-list-section").style.display = "none";
+        document.getElementById("quiz-content").style.display = "block";
+        
+        if (currentIndex >= quizList.length) {
+            initQuiz();
+        }
     }
 
     function applyRange() {
@@ -365,7 +423,6 @@
         showQuestion();
     }
 
-    // 📁 [빨간색 버튼] 클릭 시: 해당 학번의 누적 오답을 가져와 시험 시작
     function startGlobalWrongQuiz() {
         if (!currentUser) return;
         let savedList = [];
@@ -373,7 +430,7 @@
         if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
 
         if (savedList.length === 0) {
-            alert("저장된 누적 오답이 없습니다! 완벽해요! 🎉");
+            alert("저장된 누적 오답이 없습니다!");
             return;
         }
 
@@ -382,6 +439,9 @@
         currentIndex = 0;
         
         document.getElementById("mode-display").innerText = `🔥 누적 오답 집중 복습 (${savedList.length}개)`;
+        
+        document.getElementById("wrong-list-section").style.display = "none";
+        document.getElementById("quiz-content").style.display = "block";
         
         const userInput = document.getElementById("user-input");
         userInput.style.display = "inline-block";
@@ -395,7 +455,6 @@
         const resultDiv = document.getElementById("result-display");
         const userInput = document.getElementById("user-input");
         
-        // 한 바퀴 전부 완료 시 진입하는 마감 화면
         if (currentIndex >= quizList.length) {
             userInput.style.display = "none";
             document.getElementById("action-btn").innerText = "이 범위로 다시 하기";
@@ -405,7 +464,7 @@
 
             if (wrongList.length > 0) {
                 document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
-                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 누적 오답노트에 안전하게 저장되었습니다!<br><br>언제든 아래 빨간색 버튼을 눌러 저장된 오답을 모아 복습할 수 있습니다.`;
+                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 누적 오답노트에 안전하게 저장되었습니다!<br><br>상단의 [오답노트] 버튼을 누르면 언제든 전체 목록을 확인하고 집중 복습할 수 있습니다.`;
                 resultDiv.className = "result incorrect";
             } else {
                 document.getElementById("word-display").innerText = "🎉 범위 마스터!";
@@ -448,9 +507,7 @@
                 resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers[0]})`;
                 resultDiv.className = "result incorrect";
                 
-                // 이번 판 오답 메모리에 추가
                 wrongList.push(quizList[currentIndex]);
-                // 브라우저 영구 메모리(학번별)에 누적 저장
                 saveToLocalStorage(quizList[currentIndex]);
             }
             btn.innerText = "다음 문제"; isAnswerChecked = true;
@@ -459,7 +516,6 @@
         }
     }
 
-    // 로컬 스토리지에 학번별 중복 없이 오답 누적 저장 함수
     function saveToLocalStorage(wordItem) {
         if (!currentUser) return;
         let savedList = [];
@@ -467,7 +523,6 @@
         const saved = localStorage.getItem(key);
         if (saved) { try { savedList = JSON.parse(saved); } catch(e) { savedList = []; } }
         
-        // 이미 누적 오답노트에 등록되어 있는 단어가 아닐 때만 저장
         if (!savedList.some(item => item.id === wordItem.id)) {
             savedList.push(wordItem);
             localStorage.setItem(key, JSON.stringify(savedList));
