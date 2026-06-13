@@ -8,15 +8,17 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; color: #334155; }
         .container { max-width: 480px; margin: 20px auto; background: #ffffff; padding: 30px 24px 45px 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(51, 65, 85, 0.05); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
         
-        /* ✨ 상단 타이틀 및 오답노트 버튼 한 줄 배열 통합 */
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
-        h2 { color: #1e293b; margin: 0; font-size: 23px; font-weight: 800; letter-spacing: -0.5px; text-align: left; }
-        .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.15); transition: all 0.2s; }
+        /* ✨ 타이틀 정렬 및 모바일 글자 쪼개짐 방지 최적화 */
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 10px; }
+        h2 { color: #1e293b; margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.5px; text-align: left; white-space: nowrap; flex-shrink: 0; }
+        .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.15); transition: all 0.2s; flex-shrink: 0; }
         .btn-mini-wrong:hover { background-color: #dc2626; transform: translateY(-1px); }
 
-        .sub-title { color: #4f46e5; font-size: 13px; margin-bottom: 25px; font-weight: 700; text-align: left; letter-spacing: 0.5px; }
+        .sub-title { color: #4f46e5; font-size: 13px; font-weight: 700; text-align: left; letter-spacing: 0.5px; margin-bottom: 3px; }
         
-        /* 🛠️ 범위 설정 영역 슬림화 통합 */
+        /* 💡 요구사항 반영: 깔끔하고 심플하게 들어간 자동 저장 안내문구 */
+        .save-notice { color: #64748b; font-size: 12px; font-weight: 600; text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 4px; }
+
         .range-setter { display: flex; align-items: center; justify-content: center; gap: 6px; background: #f8fafc; padding: 10px; border-radius: 14px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
         .range-setter input { width: 50px; padding: 5px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; color: #1e293b; font-weight: 600; outline: none; }
         .range-setter input:focus { border-color: #4f46e5; }
@@ -25,7 +27,7 @@
         .btn-setting:hover { background-color: #334155; }
         
         .mode-badge { display: inline-block; padding: 5px 14px; font-size: 11px; font-weight: 700; border-radius: 30px; margin-bottom: 25px; background-color: #e0e7ff; color: #4f46e5; }
-        .word { font-size: 34px; font-weight: 800; color: #1e293b; margin-bottom: 25px; min-height: 50px; word-break: break-word; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; }
+        .word { font-size: 34px; font-weight: 800; color: #1e293b; margin-bottom: 25px; min-height: 50px; word-break: break-word; display: flex; align-items: center; justify-content: center; }
         
         input[type="text"] { width: 90%; padding: 14px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 14px; outline: none; text-align: center; font-weight: 600; color: #1e293b; background-color: #f8fafc; transition: all 0.2s; box-sizing: border-box; }
         input[type="text"]:focus { border-color: #4f46e5; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08); }
@@ -52,7 +54,6 @@
         .btn-delete-item { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 3px 6px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; transition: all 0.2s; }
         .btn-delete-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
 
-        /* 🛠️ 하단 버튼 구조 1:1 완벽 밸런스 통합 */
         .btn-flex-container { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; }
         .btn-flex-container button { flex: 1; margin-top: 0; font-size: 14px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .btn-back-quiz { background-color: #64748b; color: white; border: none; font-weight: 700; cursor: pointer; }
@@ -72,6 +73,7 @@
             <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">오답노트 (0)</button>
         </div>
         <div class="sub-title">3학년 영단어 수행평가 대비</div>
+        <div class="save-notice">✨ 틀린 문제는 오답노트에 자동 저장됩니다.</div>
 
         <div class="range-setter">
             <input type="number" id="start-num" value="1" min="1" max="200">
@@ -131,7 +133,7 @@
         { id: 13, eng: "associate", kor: ["동료"] },
         { id: 14, eng: "attainment", kor: ["달성"] },
         { id: 15, eng: "authentic", kor: ["진정한", "실제의"] },
-        { id: 16, eng: "awareness", kor: ["인식"] },
+        { id: 16, eng: "awareness", kor: ["식"] },
         { id: 17, eng: "barn", kor: ["헛간"] },
         { id: 18, eng: "barrier", kor: ["장벽"] },
         { id: 19, eng: "bear to do", kor: ["~을 견디다", "~을 참고 하다"] },
