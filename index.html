@@ -5,86 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3학년 수능특강 영단어 퀴즈</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: center; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box; color: #334155; }
-        .container { max-width: 520px; margin: 30px auto; background: #ffffff; padding: 35px 25px 50px 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.06), 0 1px 3px rgba(51, 65, 85, 0.02); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; color: #334155; }
+        .container { max-width: 480px; margin: 20px auto; background: #ffffff; padding: 30px 24px 45px 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(51, 65, 85, 0.05); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
         
-        h2 { color: #1e293b; margin: 0 0 6px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-        .sub-title { color: #4f46e5; font-size: 14px; margin-bottom: 25px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
-        
-        .version-badge { display: inline-block; font-size: 10px; background: #4f46e5; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 6px; font-weight: bold; }
-        .container-credit { position: absolute; bottom: 16px; right: 24px; font-size: 12px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; }
-        
-        .info-bar { background: #f0f3ff; padding: 14px 16px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(79, 70, 229, 0.1); }
-        .info-text { font-size: 13px; color: #4338ca; font-weight: 600; line-height: 1.5; text-align: left; display: block; margin-bottom: 10px; }
-        .info-action-row { display: flex; justify-content: flex-end; }
-        
-        .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 7px 14px; font-size: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); transition: all 0.2s; }
+        /* ✨ 상단 타이틀 및 오답노트 버튼 한 줄 배열 통합 */
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        h2 { color: #1e293b; margin: 0; font-size: 23px; font-weight: 800; letter-spacing: -0.5px; text-align: left; }
+        .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.15); transition: all 0.2s; }
         .btn-mini-wrong:hover { background-color: #dc2626; transform: translateY(-1px); }
 
-        .range-setter { background: #f8fafc; padding: 16px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 4px; }
-        .range-setter label { font-size: 13px; color: #64748b; font-weight: 700; margin: 0 4px; }
-        .range-setter input { width: 55px; padding: 6px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; color: #1e293b; font-weight: 600; outline: none; transition: border-color 0.2s; }
+        .sub-title { color: #4f46e5; font-size: 13px; margin-bottom: 25px; font-weight: 700; text-align: left; letter-spacing: 0.5px; }
+        
+        /* 🛠️ 범위 설정 영역 슬림화 통합 */
+        .range-setter { display: flex; align-items: center; justify-content: center; gap: 6px; background: #f8fafc; padding: 10px; border-radius: 14px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
+        .range-setter input { width: 50px; padding: 5px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; color: #1e293b; font-weight: 600; outline: none; }
         .range-setter input:focus { border-color: #4f46e5; }
-        .btn-setting { background-color: #64748b; color: white; border: none; padding: 7px 14px; font-size: 13px; border-radius: 8px; cursor: pointer; font-weight: 700; margin-left: 6px; margin-top: 0; width: auto; }
-        .btn-setting:hover { background-color: #475569; }
+        .range-split { color: #94a3b8; font-weight: bold; font-size: 14px; }
+        .btn-setting { background-color: #475569; color: white; border: none; padding: 5px 10px; font-size: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; margin-top: 0; width: auto; }
+        .btn-setting:hover { background-color: #334155; }
         
-        .mode-badge { display: inline-block; padding: 6px 16px; font-size: 12px; font-weight: 700; border-radius: 30px; margin-bottom: 30px; background-color: #e0e7ff; color: #4f46e5; }
-        .word { font-size: 36px; font-weight: 800; color: #1e293b; margin-bottom: 30px; min-height: 54px; word-break: break-word; letter-spacing: -0.5px; }
+        .mode-badge { display: inline-block; padding: 5px 14px; font-size: 11px; font-weight: 700; border-radius: 30px; margin-bottom: 25px; background-color: #e0e7ff; color: #4f46e5; }
+        .word { font-size: 34px; font-weight: 800; color: #1e293b; margin-bottom: 25px; min-height: 50px; word-break: break-word; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; }
         
-        input[type="text"] { width: 88%; padding: 14px; font-size: 17px; border: 2px solid #e2e8f0; border-radius: 14px; outline: none; text-align: center; font-weight: 600; color: #1e293b; background-color: #f8fafc; transition: all 0.2s; }
-        input[type="text"]:focus { border-color: #4f46e5; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        input[type="text"] { width: 90%; padding: 14px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 14px; outline: none; text-align: center; font-weight: 600; color: #1e293b; background-color: #f8fafc; transition: all 0.2s; box-sizing: border-box; }
+        input[type="text"]:focus { border-color: #4f46e5; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08); }
         
-        button { margin-top: 20px; padding: 14px; font-size: 16px; font-weight: 700; background-color: #4f46e5; color: white; border: none; border-radius: 14px; cursor: pointer; width: 93%; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15); transition: all 0.2s; }
-        button:hover { background-color: #4338ca; transform: translateY(-1px); }
-        button:active { transform: translateY(0); }
+        .btn-action { margin-top: 20px; padding: 14px; font-size: 16px; font-weight: 700; background-color: #4f46e5; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.12); transition: all 0.2s; }
+        .btn-action:hover { background-color: #4338ca; transform: translateY(-1px); }
         
-        .result { margin-top: 25px; font-size: 16px; font-weight: 700; min-height: 42px; line-height: 1.6; padding: 12px; border-radius: 12px; display: none; }
-        .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.1); }
-        .incorrect { color: #b91c1c; background-color: #fef2f2; border: 1px solid rgba(185, 28, 28, 0.1); }
-        .score { margin-top: 30px; font-size: 13px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
+        .result { margin-top: 20px; font-size: 15px; font-weight: 700; min-height: 40px; line-height: 1.5; padding: 12px; border-radius: 12px; display: none; box-sizing: border-box; width: 90%; margin-left: auto; margin-right: auto; }
+        .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.08); }
+        .incorrect { color: #b91c1c; background-color: #fef2f2; border: 1px solid rgba(185, 28, 28, 0.08); }
+        .score { margin-top: 25px; font-size: 13px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
 
-        /* 📋 오답 테이블 레이아웃 및 폰트 사이즈 최적화 */
+        /* 📋 오답 리스트 컴포넌트 */
         #quiz-content, #wrong-list-section { display: none; }
-        .wrong-title { font-size: 20px; color: #ef4444; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; }
-        .wrong-table-container { max-height: 340px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 25px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .wrong-title { font-size: 19px; color: #ef4444; font-weight: 800; margin-bottom: 15px; letter-spacing: -0.5px; text-align: left; }
+        .wrong-table-container { max-height: 320px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
         
         .wrong-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; table-layout: fixed; }
-        /* 🛠️ 해결: 단어 길이에 맞춰 깨지지 않도록 퍼센트 비율 정밀 재조정 */
         .wrong-table th { background-color: #fef2f2; color: #ef4444; padding: 12px 8px; font-weight: 700; position: sticky; top: 0; border-bottom: 1px solid #fca5a5; z-index: 10; }
-        .wrong-table td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; white-space: normal; }
+        .wrong-table td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
         .wrong-table tr:last-child td { border-bottom: none; }
         
-        /* 영단어 텍스트가 강제 줄바꿈 되지 않고 자연스럽게 한 줄로 흐르게 유도 */
         .td-word { font-weight: 700; color: #4f46e5; word-break: keep-all; }
-
-        .btn-delete-item { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: none; transition: all 0.2s; }
+        .btn-delete-item { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 3px 6px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; transition: all 0.2s; }
         .btn-delete-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
 
-        .btn-flex-container { display: flex; gap: 12px; justify-content: center; width: 95%; margin: 15px auto 0 auto; }
-        .btn-flex-container button { flex: 1; margin-top: 0; font-size: 15px; padding: 14px; border-radius: 12px; }
-        .btn-back-quiz { background-color: #64748b; box-shadow: 0 4px 6px rgba(100, 116, 139, 0.15); }
+        /* 🛠️ 하단 버튼 구조 1:1 완벽 밸런스 통합 */
+        .btn-flex-container { display: flex; gap: 10px; justify-content: center; width: 100%; margin-top: 10px; }
+        .btn-flex-container button { flex: 1; margin-top: 0; font-size: 14px; padding: 12px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .btn-back-quiz { background-color: #64748b; color: white; border: none; font-weight: 700; cursor: pointer; }
         .btn-back-quiz:hover { background-color: #475569; }
-        .btn-start-wrong { background-color: #ef4444; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.15); }
+        .btn-start-wrong { background-color: #ef4444; color: white; border: none; font-weight: 700; cursor: pointer; }
         .btn-start-wrong:hover { background-color: #dc2626; }
+
+        .container-credit { position: absolute; bottom: 15px; right: 24px; font-size: 11px; color: #cbd5e1; font-weight: bold; user-select: none; }
     </style>
 </head>
 <body>
 <div class="container">
-    <h2>3학년 수능특강 영단어<span class="version-badge">ver2</span></h2>
-    <div class="sub-title">3학년 영단어 수행평가 대비</div>
     
     <div id="quiz-content" style="display: block;">
-        <div class="info-bar">
-            <span class="info-text">💡 틀린 단어는 브라우저에 자동으로 저장되어 언제든 복습할 수 있습니다.</span>
-            <div class="info-action-row">
-                <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">오답노트 (0)</button>
-            </div>
+        <div class="header-row">
+            <h2>3학년 수능특강 영단어</h2>
+            <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">오답노트 (0)</button>
         </div>
+        <div class="sub-title">3학년 영단어 수행평가 대비</div>
 
         <div class="range-setter">
-            <label for="start-num">시작:</label>
             <input type="number" id="start-num" value="1" min="1" max="200">
-            <label for="end-num">끝:</label>
+            <span class="range-split">~</span>
             <input type="number" id="end-num" value="200" min="1" max="200">
             <button class="btn-setting" onclick="applyRange()">적용</button>
         </div>
@@ -93,7 +84,7 @@
         <div class="word" id="word-display">로딩 중...</div>
         <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
         <br>
-        <button onclick="checkAnswer()" id="action-btn">정답 확인</button>
+        <button onclick="checkAnswer()" id="action-btn" class="btn-action">정답 확인</button>
         <div class="result" id="result-display"></div>
         <div class="score" id="score-display">진행도: 0 / 200</div>
     </div>
@@ -104,10 +95,10 @@
             <table class="wrong-table">
                 <thead>
                     <tr>
-                        <th style="width: 13%;">번호</th>
-                        <th style="width: 44%;">영단어</th>
-                        <th style="width: 29%;">정답 뜻</th>
-                        <th style="width: 14%; text-align: center;">관리</th>
+                        <th style="width: 15%;">번호</th>
+                        <th style="width: 42%;">영단어</th>
+                        <th style="width: 28%;">정답 뜻</th>
+                        <th style="width: 15%; text-align: center;">관리</th>
                     </tr>
                 </thead>
                 <tbody id="wrong-table-body">
@@ -115,8 +106,8 @@
             </table>
         </div>
         <div class="btn-flex-container">
-            <button onclick="closeWrongListScreen()" class="btn-back-quiz">🔙 일반 퀴즈로 돌아가기</button>
-            <button onclick="startGlobalWrongQuiz()" class="btn-start-wrong">🔥 오답 퀴즈 시작</button>
+            <button onclick="closeWrongListScreen()" class="btn-back-quiz">🔙 일반 퀴즈</button>
+            <button onclick="startGlobalWrongQuiz()" class="btn-start-wrong">🔥 오답 복습</button>
         </div>
     </div>
 
@@ -360,7 +351,7 @@
     function updateGlobalWrongBtnCount() {
         const count = getSavedWrongList().length;
         const btn = document.getElementById("global-wrong-btn");
-        if (btn) btn.innerText = `오답노트 (${count})`;
+        if (btn) btn.innerText = `📂 오답노트 (${count})`;
     }
 
     function openWrongListScreen() {
@@ -418,7 +409,7 @@
         if (end > 200) end = 200;
 
         currentRangeList = masterWordList.filter(item => item.id >= start && item.id <= end);
-        document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번 구간)`;
+        document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번)`;
         initQuiz();
     }
 
@@ -440,7 +431,7 @@
         wrongList = [];
         currentIndex = 0;
         
-        document.getElementById("mode-display").innerText = `🔥 누적 오답 집중 복습 (${savedList.length}개)`;
+        document.getElementById("mode-display").innerText = `🔥 누적 오답 복습 (${savedList.length}개)`;
         
         document.getElementById("wrong-list-section").style.display = "none";
         document.getElementById("quiz-content").style.display = "block";
@@ -466,7 +457,7 @@
 
             if (wrongList.length > 0) {
                 document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
-                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 오답노트에 안전하게 저장되었습니다!<br><br>[오답노트] 버튼을 누르면 언제든 전체 목록을 확인하고 다시 복습할 수 있습니다.`;
+                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 오답노트에 저장되었습니다!<br><br>우측 상단 [오답노트] 버튼을 눌러 목록을 확인하세요.`;
                 resultDiv.className = "result incorrect";
             } else {
                 document.getElementById("word-display").innerText = "🎉 범위 마스터!";
@@ -534,3 +525,5 @@
         applyRange();
     };
 </script>
+</body>
+</html>
