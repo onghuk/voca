@@ -5,53 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3학년 수능특강 영단어 퀴즈</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background-color: #f0f4f8; margin: 0; padding: 15px; box-sizing: border-box; }
-        .container { max-width: 500px; margin: 20px auto 20px auto; background: white; padding: 25px 20px 45px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); position: relative; }
-        h2 { color: #2c3e50; margin: 0 0 5px 0; font-size: 24px; display: inline-block; }
-        .sub-title { color: #1a73e8; font-size: 15px; margin-bottom: 15px; font-weight: bold; }
+        /* ✨ 세련되고 고급스러운 현대적 인테페이스 디자인 */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; text-align: center; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); margin: 0; padding: 20px; min-height: 100vh; box-sizing: border-box; color: #334155; }
+        .container { max-width: 520px; margin: 30px auto; background: #ffffff; padding: 35px 25px 50px 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.06), 0 1px 3px rgba(51, 65, 85, 0.02); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
         
-        .version-badge { display: inline-block; font-size: 11px; background: #1a73e8; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 5px; font-weight: bold; }
+        h2 { color: #1e293b; margin: 0 0 6px 0; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        .sub-title { color: #4f46e5; font-size: 14px; margin-bottom: 25px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
         
-        /* 👑 하얀색 블록 내부 우측 하단 크레딧 */
-        .container-credit { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: #7f8c8d; font-weight: bold; user-select: none; }
+        .version-badge { display: inline-block; font-size: 10px; background: #4f46e5; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 6px; font-weight: bold; }
+        .container-credit { position: absolute; bottom: 16px; right: 24px; font-size: 12px; color: #94a3b8; font-weight: 600; letter-spacing: 0.5px; }
         
-        /* 💡 상단 안내 바 및 오답 버튼 레이아웃 */
-        .info-bar { background: #e8f0fe; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #1a73e8; line-height: 1.4; text-align: left; }
-        .info-text { font-weight: bold; margin-bottom: 8px; display: block; }
+        /* 💡 상단 안내 바 및 오답 버튼 고도화 */
+        .info-bar { background: #f0f3ff; padding: 14px 16px; border-radius: 16px; margin-bottom: 25px; border: 1px solid rgba(79, 70, 229, 0.1); }
+        .info-text { font-size: 13px; color: #4338ca; font-weight: 600; line-height: 1.5; text-align: left; display: block; margin-bottom: 10px; }
         .info-action-row { display: flex; justify-content: flex-end; }
         
-        .btn-mini-wrong { background-color: #e53935; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; }
+        .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 7px 14px; font-size: 12px; border-radius: 8px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2); transition: all 0.2s; }
+        .btn-mini-wrong:hover { background-color: #dc2626; transform: translateY(-1px); }
 
-        .range-setter { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e9ecef; }
-        .range-setter label { font-size: 14px; color: #495057; font-weight: bold; margin: 0 5px; }
-        .range-setter input { width: 60px; padding: 6px; font-size: 15px; border: 1px solid #ced4da; border-radius: 6px; text-align: center; }
-        .btn-setting { background-color: #6c757d; color: white; border: none; padding: 6px 12px; font-size: 14px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold; margin-top: 0; width: auto; }
-        .mode-badge { display: inline-block; padding: 6px 14px; font-size: 13px; font-weight: bold; border-radius: 30px; margin-bottom: 25px; background-color: #e3f2fd; color: #1e88e5; }
-        .word { font-size: 34px; font-weight: bold; color: #1a73e8; margin-bottom: 25px; min-height: 50px; word-break: break-word; }
-        input[type="text"] { width: 85%; padding: 14px; font-size: 18px; border: 2px solid #ced4da; border-radius: 12px; outline: none; text-align: center; }
-        button { margin-top: 15px; padding: 14px; font-size: 18px; font-weight: bold; background-color: #1a73e8; color: white; border: none; border-radius: 12px; cursor: pointer; width: 90%; }
+        /* 범위 설정 존 */
+        .range-setter { background: #f8fafc; padding: 16px; border-radius: 16px; margin-bottom: 25px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; gap: 4px; }
+        .range-setter label { font-size: 13px; color: #64748b; font-weight: 700; margin: 0 4px; }
+        .range-setter input { width: 55px; padding: 6px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 8px; text-align: center; color: #1e293b; font-weight: 600; outline: none; transition: border-color 0.2s; }
+        .range-setter input:focus { border-color: #4f46e5; }
+        .btn-setting { background-color: #64748b; color: white; border: none; padding: 7px 14px; font-size: 13px; border-radius: 8px; cursor: pointer; font-weight: 700; margin-left: 6px; margin-top: 0; width: auto; }
+        .btn-setting:hover { background-color: #475569; }
         
-        .result { margin-top: 20px; font-size: 18px; font-weight: bold; min-height: 40px; line-height: 1.5; padding: 10px; border-radius: 8px; display: none; }
-        .correct { color: #2e7d32; background-color: #e8f5e9; }
-        .incorrect { color: #c62828; background-color: #ffebee; }
-        .score { margin-top: 25px; font-size: 14px; color: #5f6368; font-weight: bold; }
+        .mode-badge { display: inline-block; padding: 6px 16px; font-size: 12px; font-weight: 700; border-radius: 30px; margin-bottom: 30px; background-color: #e0e7ff; color: #4f46e5; }
+        .word { font-size: 36px; font-weight: 800; color: #1e293b; margin-bottom: 30px; min-height: 54px; word-break: break-word; letter-spacing: -0.5px; }
+        
+        input[type="text"] { width: 88%; padding: 14px; font-size: 17px; border: 2px solid #e2e8f0; border-radius: 14px; outline: none; text-align: center; font-weight: 600; color: #1e293b; background-color: #f8fafc; transition: all 0.2s; }
+        input[type="text"]:focus { border-color: #4f46e5; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        
+        button { margin-top: 20px; padding: 14px; font-size: 16px; font-weight: 700; background-color: #4f46e5; color: white; border: none; border-radius: 14px; cursor: pointer; width: 93%; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15); transition: all 0.2s; }
+        button:hover { background-color: #4338ca; transform: translateY(-1px); }
+        button:active { transform: translateY(0); }
+        
+        .result { margin-top: 25px; font-size: 16px; font-weight: 700; min-height: 42px; line-height: 1.6; padding: 12px; border-radius: 12px; display: none; }
+        .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.1); }
+        .incorrect { color: #b91c1c; background-color: #fef2f2; border: 1px solid rgba(185, 28, 28, 0.1); }
+        .score { margin-top: 30px; font-size: 13px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
 
-        /* 오답 리스트 전용 테이블 및 버튼 디자인 */
+        /* 📋 오답 전용 리스트 컴포넌트 고급화 */
         #quiz-content, #wrong-list-section { display: none; }
-        .wrong-title { font-size: 20px; color: #c62828; font-weight: bold; margin-bottom: 15px; }
-        .wrong-table-container { max-height: 320px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; }
+        .wrong-title { font-size: 20px; color: #ef4444; font-weight: 800; margin-bottom: 20px; letter-spacing: -0.5px; }
+        .wrong-table-container { max-height: 340px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 25px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        
         .wrong-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
-        .wrong-table th { background-color: #ffebee; color: #c62828; padding: 10px; font-weight: bold; position: sticky; top: 0; }
-        .wrong-table td { padding: 10px; border-bottom: 1px solid #f1f3f5; word-break: break-all; vertical-align: middle; }
+        .wrong-table th { background-color: #fef2f2; color: #ef4444; padding: 12px; font-weight: 700; position: sticky; top: 0; border-bottom: 1px solid #fca5a5; z-index: 10; }
+        .wrong-table td { padding: 12px; border-bottom: 1px solid #f1f5f9; word-break: break-all; vertical-align: middle; color: #334155; }
         .wrong-table tr:last-child td { border-bottom: none; }
         
-        .btn-delete-item { background: #f1f3f5; color: #e53935; border: 1px solid #dee2e6; padding: 3px 7px; font-size: 11px; border-radius: 4px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; transition: all 0.2s; }
-        .btn-delete-item:hover { background: #e53935; color: white; border-color: #e53935; }
+        .btn-delete-item { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; padding: 4px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: none; transition: all 0.2s; }
+        .btn-delete-item:hover { background: #ef4444; color: white; border-color: #ef4444; }
 
-        .btn-flex-container { display: flex; gap: 10px; justify-content: center; width: 95%; margin: 15px auto 0 auto; }
-        .btn-flex-container button { flex: 1; margin-top: 0; font-size: 15px; padding: 12px; }
-        .btn-back-quiz { background-color: #6c757d; }
-        .btn-start-wrong { background-color: #e53935; }
+        .btn-flex-container { display: flex; gap: 12px; justify-content: center; width: 95%; margin: 15px auto 0 auto; }
+        .btn-flex-container button { flex: 1; margin-top: 0; font-size: 15px; padding: 14px; border-radius: 12px; }
+        .btn-back-quiz { background-color: #64748b; box-shadow: 0 4px 6px rgba(100, 116, 139, 0.15); }
+        .btn-back-quiz:hover { background-color: #475569; }
+        .btn-start-wrong { background-color: #ef4444; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.15); }
+        .btn-start-wrong:hover { background-color: #dc2626; }
     </style>
 </head>
 <body>
@@ -90,9 +103,9 @@
             <table class="wrong-table">
                 <thead>
                     <tr>
-                        <th style="width: 15%;">번호</th>
-                        <th style="width: 35%;">영단어</th>
-                        <th style="width: 35%;">정답 뜻</th>
+                        <th style="width: 22%;">번호</th>
+                        <th style="width: 33%;">영단어</th>
+                        <th style="width: 30%;">정답 뜻</th>
                         <th style="width: 15%; text-align: center;">관리</th>
                     </tr>
                 </thead>
@@ -160,7 +173,7 @@
         { id: 47, eng: "criticize", kor: ["비판하다"] },
         { id: 48, eng: "cultured", kor: ["배양한"] },
         { id: 49, eng: "custom", kor: ["관행", "관습"] },
-        { id: 50, msg: "customization", kor: ["고객 맞춤화"] },
+        { id: 50, eng: "customization", kor: ["고객 맞춤화"] },
         { id: 51, eng: "cut down on", kor: ["~을 줄이다"] },
         { id: 52, eng: "dairy", kor: ["유제품"] },
         { id: 53, eng: "deceive", kor: ["속이다"] },
@@ -316,7 +329,6 @@
     let currentRangeList = [...masterWordList];
     let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
     
-    // 💡 로그인 제거로 통합된 키 이름 하나만 고정 사용 (기존 데이터와 호환 연동)
     const STORAGE_KEY = "voca_wrong_list_global";
 
     function shuffle(array) {
@@ -328,10 +340,8 @@
     }
 
     function getSavedWrongList() {
-        // 💡 기존에 학번 없이 쓰던 유저나 호환용 통합 키값 체크
         let saved = localStorage.getItem(STORAGE_KEY);
         
-        // 만약 기존에 학번 버전으로 로그인했던 내역이 폰에 남아있는 경우 백업 데이터 매핑 지원
         if (!saved) {
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
@@ -360,14 +370,14 @@
         tbody.innerHTML = "";
 
         if (savedList.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#7f8c8d; padding:20px;">저장된 오답이 없습니다. 완벽해요! 🎉</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#64748b; padding:20px; font-weight:600;">저장된 오답이 없습니다. 완벽해요! 🎉</td></tr>`;
         } else {
             savedList.forEach(item => {
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td>${item.id}</td>
-                    <td style="font-weight:bold; color:#1a73e8;">${item.eng}</td>
-                    <td>${item.kor.join(', ')}</td>
+                    <td style="font-weight:700; color:#475569;">${item.id}</td>
+                    <td style="font-weight:700; color:#4f46e5;">${item.eng}</td>
+                    <td style="font-weight:500;">${item.kor.join(', ')}</td>
                     <td style="text-align:center;">
                         <button class="btn-delete-item" onclick="deleteWrongItem(${item.id})">삭제</button>
                     </td>
@@ -519,7 +529,6 @@
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
 
-    // 💡 페이지 로드 시 즉시 실행
     window.onload = function() {
         applyRange();
     };
