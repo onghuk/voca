@@ -12,24 +12,15 @@
         
         .version-badge { display: inline-block; font-size: 11px; background: #1a73e8; color: white; padding: 2px 6px; border-radius: 6px; vertical-align: super; margin-left: 5px; font-weight: bold; }
         
-        /* 👑 하얀색 블록 내부 우측 하단으로 이사 온 크레딧 */
+        /* 👑 하얀색 블록 내부 우측 하단 크레딧 */
         .container-credit { position: absolute; bottom: 15px; right: 20px; font-size: 12px; color: #7f8c8d; font-weight: bold; user-select: none; }
         
-        /* 로그인 화면 스타일 */
-        .login-box { padding: 30px 20px; background: #fff; border-radius: 12px; }
-        .login-input { width: 80%; padding: 12px; font-size: 18px; border: 2px solid #ced4da; border-radius: 10px; text-align: center; outline: none; }
-        .login-input:focus { border-color: #1a73e8; }
-        .btn-login { background-color: #1a73e8; color: white; border: none; padding: 12px; font-size: 16px; border-radius: 10px; cursor: pointer; width: 85%; margin-top: 20px; font-weight: bold; }
+        /* 💡 상단 안내 바 및 오답 버튼 레이아웃 */
+        .info-bar { background: #e8f0fe; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #1a73e8; line-height: 1.4; text-align: left; }
+        .info-text { font-weight: bold; margin-bottom: 8px; display: block; }
+        .info-action-row { display: flex; justify-content: flex-end; }
         
-        /* 화면 제어용 섹션 숨김 스타일 */
-        #quiz-content, #wrong-list-section { display: none; }
-        
-        /* 상단 유저 바 & 조그만 오답 버튼 */
-        .user-bar { display: flex; justify-content: space-between; align-items: center; background: #e8f0fe; padding: 10px 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; font-weight: bold; color: #1a73e8; }
-        .user-bar-left { display: flex; align-items: center; gap: 8px; }
-        .btn-mini-wrong { background-color: #e53935; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; }
-        .btn-logout { background: none; border: none; color: #5f6368; font-size: 12px; cursor: pointer; padding: 0; margin: 0; width: auto; font-weight: normal; }
-        .btn-logout:hover { text-decoration: underline; color: #c62828; }
+        .btn-mini-wrong { background-color: #e53935; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; width: auto; margin-top: 0; }
 
         .range-setter { background: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e9ecef; }
         .range-setter label { font-size: 14px; color: #495057; font-weight: bold; margin: 0 5px; }
@@ -46,6 +37,7 @@
         .score { margin-top: 25px; font-size: 14px; color: #5f6368; font-weight: bold; }
 
         /* 오답 리스트 전용 테이블 및 버튼 디자인 */
+        #quiz-content, #wrong-list-section { display: none; }
         .wrong-title { font-size: 20px; color: #c62828; font-weight: bold; margin-bottom: 15px; }
         .wrong-table-container { max-height: 320px; overflow-y: auto; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 20px; }
         .wrong-table { width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; }
@@ -67,19 +59,12 @@
     <h2>3학년 수능특강 영단어<span class="version-badge">ver2</span></h2>
     <div class="sub-title">3학년 영단어 수행평가 대비</div>
     
-    <div id="login-section" class="login-box">
-        <input type="number" id="student-id" class="login-input" placeholder="학번 입력 (예: 30101)" onkeypress="handleLoginPress(event)">
-        <br>
-        <button class="btn-login" onclick="login()">퀴즈 시작하기</button>
-    </div>
-
-    <div id="quiz-content">
-        <div class="user-bar">
-            <div class="user-bar-left">
-                <span id="user-display">👤 학번: </span>
+    <div id="quiz-content" style="display: block;">
+        <div class="info-bar">
+            <span class="info-text">💡 틀린 단어는 브라우저에 자동으로 저장되어 언제든 복습할 수 있습니다.</span>
+            <div class="info-action-row">
                 <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">오답노트 (0)</button>
             </div>
-            <button class="btn-logout" onclick="logout()">로그아웃</button>
         </div>
 
         <div class="range-setter">
@@ -175,7 +160,7 @@
         { id: 47, eng: "criticize", kor: ["비판하다"] },
         { id: 48, eng: "cultured", kor: ["배양한"] },
         { id: 49, eng: "custom", kor: ["관행", "관습"] },
-        { id: 50, eng: "customization", kor: ["고객 맞춤화"] },
+        { id: 50, msg: "customization", kor: ["고객 맞춤화"] },
         { id: 51, eng: "cut down on", kor: ["~을 줄이다"] },
         { id: 52, eng: "dairy", kor: ["유제품"] },
         { id: 53, eng: "deceive", kor: ["속이다"] },
@@ -330,7 +315,9 @@
 
     let currentRangeList = [...masterWordList];
     let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
-    let currentUser = "";
+    
+    // 💡 로그인 제거로 통합된 키 이름 하나만 고정 사용 (기존 데이터와 호환 연동)
+    const STORAGE_KEY = "voca_wrong_list_global";
 
     function shuffle(array) {
         for (let i = array.length - 1; i > 0; i--) {
@@ -340,57 +327,21 @@
         return array;
     }
 
-    // 🔑 요구사항 반영: 학번 30으로 시작 및 번호 30 이하 정밀 필터링 로직
-    function login() {
-        const idInput = document.getElementById("student-id").value.trim();
-        
-        if (!idInput) { alert("학번을 입력해주세요!"); return; }
-        
-        // 글자수나 형식 검환용 체크 (최소 5자리 숫자 체크)
-        if (idInput.length < 5) {
-            alert("정확한 5자리 학번을 입력해주세요! (예: 30101)");
-            return;
-        }
-
-        // 학번 앞 2자리가 30으로 시작하는지 판별
-        if (!idInput.startsWith("30")) {
-            alert("3학년만 로그인할 수 있습니다.\n학번은 반드시 30으로 시작해야 합니다.");
-            return;
-        }
-
-        // 학번 뒤의 3자리 중 반/번호 파트 추출 (30121 -> 121 추출 후 뒤의 2자리인 '21'번 파정)
-        const lastPart = parseInt(idInput.substring(3)); // 학번의 마지막 2자리 (번호 파트)
-        if (isNaN(lastPart) || lastPart > 30) {
-            alert("존재하지 않는 번호입니다.\n번호는 30번을 넘을 수 없습니다.");
-            return;
-        }
-
-        currentUser = idInput;
-        document.getElementById("user-display").innerText = `👤 학번: ${currentUser}`;
-        
-        document.getElementById("login-section").style.display = "none";
-        document.getElementById("quiz-content").style.display = "block";
-        document.getElementById("wrong-list-section").style.display = "none";
-        
-        updateGlobalWrongBtnCount();
-        applyRange();
-    }
-
-    function handleLoginPress(event) { if (event.key === "Enter") login(); }
-
-    function logout() {
-        currentUser = "";
-        document.getElementById("student-id").value = "";
-        document.getElementById("login-section").style.display = "block";
-        document.getElementById("quiz-content").style.display = "none";
-        document.getElementById("wrong-list-section").style.display = "none";
-    }
-
-    function getStorageKey() { return `voca_wrong_list_${currentUser}`; }
-
     function getSavedWrongList() {
-        if (!currentUser) return [];
-        const saved = localStorage.getItem(getStorageKey());
+        // 💡 기존에 학번 없이 쓰던 유저나 호환용 통합 키값 체크
+        let saved = localStorage.getItem(STORAGE_KEY);
+        
+        // 만약 기존에 학번 버전으로 로그인했던 내역이 폰에 남아있는 경우 백업 데이터 매핑 지원
+        if (!saved) {
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith("voca_wrong_list_")) {
+                    saved = localStorage.getItem(key);
+                    break;
+                }
+            }
+        }
+        
         if (!saved) return [];
         try { return JSON.parse(saved); } catch(e) { return []; }
     }
@@ -402,8 +353,6 @@
     }
 
     function openWrongListScreen() {
-        if (!currentUser) return;
-        
         let savedList = getSavedWrongList();
         savedList.sort((a, b) => a.id - b.id);
 
@@ -432,10 +381,9 @@
     }
 
     function deleteWrongItem(id) {
-        if (!currentUser) return;
         let savedList = getSavedWrongList();
         savedList = savedList.filter(item => item.id !== id);
-        localStorage.setItem(getStorageKey(), JSON.stringify(savedList));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
         
         updateGlobalWrongBtnCount();
         openWrongListScreen();
@@ -470,7 +418,6 @@
     }
 
     function startGlobalWrongQuiz() {
-        if (!currentUser) return;
         let savedList = getSavedWrongList();
 
         if (savedList.length === 0) {
@@ -508,7 +455,7 @@
 
             if (wrongList.length > 0) {
                 document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
-                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 누적 오답노트에 안전하게 저장되었습니다!<br><br>상단의 [오답노트] 버튼을 누르면 언제든 전체 목록을 확인하고 집중 복습할 수 있습니다.`;
+                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 오답노트에 안전하게 저장되었습니다!<br><br>[오답노트] 버튼을 누르면 언제든 전체 목록을 확인하고 다시 복습할 수 있습니다.`;
                 resultDiv.className = "result incorrect";
             } else {
                 document.getElementById("word-display").innerText = "🎉 범위 마스터!";
@@ -561,17 +508,21 @@
     }
 
     function saveToLocalStorage(wordItem) {
-        if (!currentUser) return;
         let savedList = getSavedWrongList();
         
         if (!savedList.some(item => item.id === wordItem.id)) {
             savedList.push(wordItem);
-            localStorage.setItem(getStorageKey(), JSON.stringify(savedList));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
             updateGlobalWrongBtnCount();
         }
     }
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
+
+    // 💡 페이지 로드 시 즉시 실행
+    window.onload = function() {
+        applyRange();
+    };
 </script>
 </body>
 </html>
