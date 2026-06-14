@@ -8,15 +8,12 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; color: #334155; }
         .container { max-width: 480px; margin: 20px auto; background: #ffffff; padding: 30px 24px 45px 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(51, 65, 85, 0.05); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
         
-        /* ✨ 타이틀 정렬 및 모바일 글자 쪼개짐 방지 최적화 */
         .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 10px; }
         h2 { color: #1e293b; margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.5px; text-align: left; white-space: nowrap; flex-shrink: 0; }
         .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.15); transition: all 0.2s; flex-shrink: 0; }
         .btn-mini-wrong:hover { background-color: #dc2626; transform: translateY(-1px); }
 
         .sub-title { color: #4f46e5; font-size: 13px; font-weight: 700; text-align: left; letter-spacing: 0.5px; margin-bottom: 3px; }
-        
-        /* 💡 요구사항 반영: 깔끔하고 심플하게 들어간 자동 저장 안내문구 */
         .save-notice { color: #64748b; font-size: 12px; font-weight: 600; text-align: left; margin-bottom: 25px; display: flex; align-items: center; gap: 4px; }
 
         .range-setter { display: flex; align-items: center; justify-content: center; gap: 6px; background: #f8fafc; padding: 10px; border-radius: 14px; margin-bottom: 25px; border: 1px solid #e2e8f0; }
@@ -35,12 +32,15 @@
         .btn-action { margin-top: 20px; padding: 14px; font-size: 16px; font-weight: 700; background-color: #4f46e5; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.12); transition: all 0.2s; }
         .btn-action:hover { background-color: #4338ca; transform: translateY(-1px); }
         
+        /* 💡 선택 삭제용 초록색 완료 액션 버튼 */
+        .btn-clean-wrong { margin-top: 12px; padding: 14px; font-size: 15px; font-weight: 700; background-color: #16a34a; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.12); transition: all 0.2s; display: none; }
+        .btn-clean-wrong:hover { background-color: #15803d; transform: translateY(-1px); }
+
         .result { margin-top: 20px; font-size: 15px; font-weight: 700; min-height: 40px; line-height: 1.5; padding: 12px; border-radius: 12px; display: none; box-sizing: border-box; width: 90%; margin-left: auto; margin-right: auto; }
         .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.08); }
         .incorrect { color: #b91c1c; background-color: #fef2f2; border: 1px solid rgba(185, 28, 28, 0.08); }
         .score { margin-top: 25px; font-size: 13px; color: #64748b; font-weight: 700; letter-spacing: 0.5px; }
 
-        /* 📋 오답 리스트 컴포넌트 */
         #quiz-content, #wrong-list-section { display: none; }
         .wrong-title { font-size: 19px; color: #ef4444; font-weight: 800; margin-bottom: 15px; letter-spacing: -0.5px; text-align: left; }
         .wrong-table-container { max-height: 320px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.01); }
@@ -87,6 +87,7 @@
         <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
         <br>
         <button onclick="checkAnswer()" id="action-btn" class="btn-action">정답 확인</button>
+        <button onclick="cleanCorrectedWrongItems()" id="clean-wrong-btn" class="btn-clean-wrong">✨ 방금 맞춘 단어 오답노트에서 빼기</button>
         <div class="result" id="result-display"></div>
         <div class="score" id="score-display">진행도: 0 / 200</div>
     </div>
@@ -321,7 +322,8 @@
     ];
 
     let currentRangeList = [...masterWordList];
-    let quizList = [], wrongList = [], currentIndex = 0, isAnswerChecked = false;
+    let quizList = [], wrongList = [], correctedList = [], currentIndex = 0, isAnswerChecked = false;
+    let isWrongReviewMode = false; 
     
     const STORAGE_KEY = "voca_wrong_list_global";
 
@@ -335,7 +337,6 @@
 
     function getSavedWrongList() {
         let saved = localStorage.getItem(STORAGE_KEY);
-        
         if (!saved) {
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
@@ -345,7 +346,6 @@
                 }
             }
         }
-        
         if (!saved) return [];
         try { return JSON.parse(saved); } catch(e) { return []; }
     }
@@ -396,10 +396,7 @@
     function closeWrongListScreen() {
         document.getElementById("wrong-list-section").style.display = "none";
         document.getElementById("quiz-content").style.display = "block";
-        
-        if (currentIndex >= quizList.length) {
-            initQuiz();
-        }
+        if (currentIndex >= quizList.length) { initQuiz(); }
     }
 
     function applyRange() {
@@ -412,32 +409,35 @@
 
         currentRangeList = masterWordList.filter(item => item.id >= start && item.id <= end);
         document.getElementById("mode-display").innerText = `일반 모드 (${start}~${end}번)`;
+        isWrongReviewMode = false;
         initQuiz();
     }
 
     function initQuiz() {
-        quizList = shuffle([...currentRangeList]); wrongList = []; currentIndex = 0;
+        quizList = shuffle([...currentRangeList]); 
+        wrongList = []; 
+        correctedList = [];
+        currentIndex = 0;
+        document.getElementById("clean-wrong-btn").style.display = "none"; 
         updateGlobalWrongBtnCount();
         showQuestion();
     }
 
     function startGlobalWrongQuiz() {
         let savedList = getSavedWrongList();
-
-        if (savedList.length === 0) {
-            alert("저장된 누적 오답이 없습니다!");
-            return;
-        }
+        if (savedList.length === 0) { alert("저장된 누적 오답이 없습니다!"); return; }
 
         quizList = shuffle([...savedList]);
         wrongList = [];
+        correctedList = [];
         currentIndex = 0;
+        isWrongReviewMode = true; 
         
         document.getElementById("mode-display").innerText = `🔥 누적 오답 복습 (${savedList.length}개)`;
-        
         document.getElementById("wrong-list-section").style.display = "none";
         document.getElementById("quiz-content").style.display = "block";
-        
+        document.getElementById("clean-wrong-btn").style.display = "none"; 
+
         const userInput = document.getElementById("user-input");
         userInput.style.display = "inline-block";
         userInput.value = "";
@@ -449,22 +449,38 @@
     function showQuestion() {
         const resultDiv = document.getElementById("result-display");
         const userInput = document.getElementById("user-input");
+        const cleanBtn = document.getElementById("clean-wrong-btn");
         
         if (currentIndex >= quizList.length) {
             userInput.style.display = "none";
-            document.getElementById("action-btn").innerText = "이 범위로 다시 하기";
+            document.getElementById("action-btn").innerText = "다시 시작하기";
             resultDiv.style.display = "block";
-            
             updateGlobalWrongBtnCount();
 
-            if (wrongList.length > 0) {
-                document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
-                resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 오답노트에 저장되었습니다!<br><br>우측 상단 [오답노트] 버튼을 눌러 목록을 확인하세요.`;
-                resultDiv.className = "result incorrect";
-            } else {
-                document.getElementById("word-display").innerText = "🎉 범위 마스터!";
-                resultDiv.innerHTML = "해당 구간의 틀린 단어가 없습니다. 완벽해요! 🔥";
+            if (isWrongReviewMode) {
+                document.getElementById("word-display").innerText = "🏁 복습 완료!";
                 resultDiv.className = "result correct";
+                
+                // 💡 기획 수정 반영: 이제 복습 한바퀴 돌려도 데이터는 실시간 삭제 안 되고 완벽 보존됨!
+                if (correctedList.length > 0) {
+                    resultDiv.innerHTML = `총 <b>${quizList.length}문제 중 ${correctedList.length}문제</b>를 맞췄습니다!<br><br>방금 맞춘 단어들을 오답노트에서 완전히 빼고 싶다면 아래 버튼을 눌러주세요.`;
+                    cleanBtn.innerText = `✨ 방금 맞춘 ${correctedList.length}개 오답노트에서 빼기`;
+                    cleanBtn.style.display = "inline-block";
+                } else {
+                    resultDiv.innerHTML = "맞춘 문제가 없습니다. 다시 한번 차근차근 복습해 보아요! 💪";
+                    cleanBtn.style.display = "none";
+                }
+            } else {
+                cleanBtn.style.display = "none";
+                if (wrongList.length > 0) {
+                    document.getElementById("word-display").innerText = "💾 오답 자동 저장 완료";
+                    resultDiv.innerHTML = `이번 판에서 틀린 단어 <b>${wrongList.length}개</b>가 오답노트에 추가되었습니다.<br><br>우측 상단 [오답노트] 버튼을 눌러 목록을 확인하세요.`;
+                    resultDiv.className = "result incorrect";
+                } else {
+                    document.getElementById("word-display").innerText = "🎉 범위 마스터!";
+                    resultDiv.innerHTML = "해당 구간의 틀린 단어가 없습니다. 완벽해요! 🔥";
+                    resultDiv.className = "result correct";
+                }
             }
             return;
         }
@@ -473,6 +489,7 @@
         userInput.value = "";
         userInput.style.display = "inline-block";
         resultDiv.style.display = "none";
+        cleanBtn.style.display = "none";
         document.getElementById("action-btn").innerText = "정답 확인";
         document.getElementById("score-display").innerText = `진행도: ${currentIndex} / ${quizList.length}`;
         isAnswerChecked = false;
@@ -481,7 +498,10 @@
     }
 
     function checkAnswer() {
-        if (currentIndex >= quizList.length) { initQuiz(); return; }
+        if (currentIndex >= quizList.length) { 
+            if (isWrongReviewMode) { startGlobalWrongQuiz(); } else { initQuiz(); }
+            return; 
+        }
         const btn = document.getElementById("action-btn");
         const resultDiv = document.getElementById("result-display");
 
@@ -498,12 +518,19 @@
             if (isCorrect) {
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers.join(', ')})`;
                 resultDiv.className = "result correct";
+                
+                // 💡 복습 도중 실시간 강제 삭제 로직 전면 폐지 -> 단어 맞춤 리스트에만 임시 누적
+                if (isWrongReviewMode) {
+                    correctedList.push(quizList[currentIndex]);
+                }
             } else {
                 resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers[0]})`;
                 resultDiv.className = "result incorrect";
                 
-                wrongList.push(quizList[currentIndex]);
-                saveToLocalStorage(quizList[currentIndex]);
+                if (!isWrongReviewMode) {
+                    wrongList.push(quizList[currentIndex]);
+                    saveToLocalStorage(quizList[currentIndex]);
+                }
             }
             btn.innerText = "다음 문제"; isAnswerChecked = true;
         } else {
@@ -511,9 +538,27 @@
         }
     }
 
+    // 💡 기획 최종 반영: 학생이 직접 이 버튼을 눌렀을 때만 완전히 외운 단어 선택 삭제!
+    function cleanCorrectedWrongItems() {
+        if (correctedList.length === 0) return;
+        
+        let savedList = getSavedWrongList();
+        const correctedIds = correctedList.map(item => item.id);
+        
+        savedList = savedList.filter(item => !correctedIds.includes(item.id));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
+        
+        alert(`✨ 선택하신 ${correctedList.length}개의 단어가 오답노트에서 제외되었습니다!`);
+        
+        correctedList = []; 
+        document.getElementById("clean-wrong-btn").style.display = "none";
+        updateGlobalWrongBtnCount();
+        
+        openWrongListScreen();
+    }
+
     function saveToLocalStorage(wordItem) {
         let savedList = getSavedWrongList();
-        
         if (!savedList.some(item => item.id === wordItem.id)) {
             savedList.push(wordItem);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(savedList));
@@ -523,9 +568,7 @@
 
     function handleKeyPress(event) { if (event.key === "Enter") checkAnswer(); }
 
-    window.onload = function() {
-        applyRange();
-    };
+    window.onload = function() { applyRange(); };
 </script>
 </body>
 </html>
