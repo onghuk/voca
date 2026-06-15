@@ -24,7 +24,7 @@
         .btn-setting:hover { background-color: #334155; }
         
         .mode-badge { display: inline-block; padding: 5px 14px; font-size: 11px; font-weight: 700; border-radius: 30px; margin-bottom: 25px; background-color: #e0e7ff; color: #4f46e5; }
-        .word { font-size: 34px; font-weight: 800; color: #1e293b; margin-bottom: 25px; min-height: 50px; word-break: break-word; display: flex; align-items: center; justify-content: center; }
+        .word { font-size: 34px; font-weight: 800; color: #1e293b; margin-bottom: 20px; min-height: 50px; word-break: break-word; display: flex; align-items: center; justify-content: center; }
         
         input[type="text"] { width: 90%; padding: 14px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 14px; outline: none; text-align: center; font-weight: 600; color: #1e293b; background-color: #f8fafc; transition: all 0.2s; box-sizing: border-box; }
         input[type="text"]:focus { border-color: #4f46e5; background-color: #ffffff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08); }
@@ -35,9 +35,9 @@
         .btn-clean-wrong { margin-top: 12px; padding: 14px; font-size: 15px; font-weight: 700; background-color: #16a34a; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.12); transition: all 0.2s; display: none; }
         .btn-clean-wrong:hover { background-color: #15803d; transform: translateY(-1px); }
 
-        /* 💡 신규 추가: 임의 오답 보관용 노란색 감성 버튼 스타일 */
-        .btn-force-wrong { margin-top: 12px; padding: 12px; font-size: 14px; font-weight: 700; background-color: #d97706; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(217, 119, 6, 0.12); transition: all 0.2s; display: none; }
-        .btn-force-wrong:hover { background-color: #b45309; transform: translateY(-1px); }
+        /* 🛠️ 해결: 위쪽에 컴팩트하게 배치되도록 콤팩트 미니 칩(Badge) 형태로 대폭 다이어트 */
+        .btn-force-wrong { background-color: #f59e0b; color: white; border: none; padding: 5px 12px; font-size: 11px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.15); transition: all 0.2s; display: none; }
+        .btn-force-wrong:hover { background-color: #d97706; transform: translateY(-1px); }
 
         .result { margin-top: 20px; font-size: 15px; font-weight: 700; min-height: 40px; line-height: 1.5; padding: 12px; border-radius: 12px; display: none; box-sizing: border-box; width: 90%; margin-left: auto; margin-right: auto; }
         .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.08); }
@@ -87,11 +87,13 @@
 
         <div id="mode-display" class="mode-badge">일반 모드 (1~200)</div>
         <div class="word" id="word-display">로딩 중...</div>
+        
+        <button onclick="forceSaveToWrongList()" id="force-wrong-btn" class="btn-force-wrong">📌 이 단어 오답노트에 추가</button>
+        
         <input type="text" id="user-input" placeholder="뜻을 입력하세요" onkeypress="handleKeyPress(event)" autocomplete="off" autocapitalize="none">
         <br>
         <button onclick="checkAnswer()" id="action-btn" class="btn-action">정답 확인</button>
         <button onclick="cleanCorrectedWrongItems()" id="clean-wrong-btn" class="btn-clean-wrong">✨ 방금 맞춘 단어 오답노트에서 빼기</button>
-        <button onclick="forceSaveToWrongList()" id="force-wrong-btn" class="btn-force-wrong">📂 이 단어 오답노트에 강제로 넣기</button>
         <div class="result" id="result-display"></div>
         <div class="score" id="score-display">진행도: 0 / 200</div>
     </div>
@@ -191,7 +193,6 @@
         { id: 66, eng: "emission", kor: ["배출"] },
         { id: 67, eng: "encounter", kor: ["접하다", "마주치다"] },
         { id: 68, eng: "engage in", kor: ["~에 참여하다"] },
-        { id: 69, eng: "enhance", kor: ["강화하다"] },
         { id: 70, eng: "entertaining", kor: ["재미있는"] },
         { id: 71, eng: "estimate", kor: ["추정하다"] },
         { id: 72, eng: "ethnic", kor: ["민족의"] },
@@ -528,7 +529,7 @@
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers.join(', ')})`;
                 resultDiv.className = "result correct";
                 
-                // 💡 요구사항 반영: 맞춘 상태이므로, 불안한 학생들을 위해 "임의로 오답노트에 추가" 버튼 오픈!
+                // 🛠️ 기획 교정: 맞췄을 때 단어 바로 아랫방향 상단 칩 형태로 연동 출현
                 forceBtn.style.display = "inline-block";
                 
                 if (isWrongReviewMode) {
@@ -538,7 +539,6 @@
                 resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers.join(', ')})`;
                 resultDiv.className = "result incorrect";
                 
-                // 틀렸을 때는 어차피 강제 저장이 자동이므로 수동 추가 버튼을 숨김
                 forceBtn.style.display = "none";
                 
                 if (!isWrongReviewMode) {
@@ -552,15 +552,11 @@
         }
     }
 
-    // 💡 요구사항 반영: 틀리지 않았어도 학생이 원하면 오답노트에 임의로 집어넣는 비즈니스 함수
     function forceSaveToWrongList() {
         const currentWord = quizList[currentIndex];
         saveToLocalStorage(currentWord);
         
-        // 시각적으로 오답노트에 추가되었음을 토스트 피드백 알림
-        alert(`📂 [${currentWord.eng}] 단어가 오답노트에 임의 보관되었습니다.`);
-        
-        // 연타 방지용으로 추가 완료 후 버튼 숨김 처리
+        alert(`📂 [${currentWord.eng}] 단어가 오답노트에 보관되었습니다.`);
         document.getElementById("force-wrong-btn").style.display = "none";
     }
 
