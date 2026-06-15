@@ -8,16 +8,18 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); margin: 0; padding: 15px; min-height: 100vh; box-sizing: border-box; color: #334155; }
         .container { max-width: 480px; margin: 20px auto; background: #ffffff; padding: 30px 24px 45px 24px; border-radius: 24px; box-shadow: 0 10px 25px rgba(51, 65, 85, 0.05); position: relative; border: 1px solid rgba(226, 232, 240, 0.8); }
         
-        /* ✨ 상단 헤더 영역 버튼들 한 줄로 묶기 */
-        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; gap: 10px; }
-        h2 { color: #1e293b; margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.5px; text-align: left; white-space: nowrap; flex-shrink: 0; }
+        /* 📂 상단 레이아웃 우측 영역 세로 정렬 통합 */
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; gap: 10px; }
+        h2 { color: #1e293b; margin: 0; font-size: 21px; font-weight: 800; letter-spacing: -0.5px; text-align: left; white-space: nowrap; flex-shrink: 0; padding-top: 2px; }
         
-        .action-badges { display: flex; gap: 6px; flex-shrink: 0; align-items: center; }
+        /* 🛠️ 해결: 오른쪽 구석에 위아래로 버튼이 나란히 정렬되도록 전용 컬럼 부모 박스 구축 */
+        .action-badges-column { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; align-items: flex-end; min-height: 60px; }
+        
         .btn-mini-wrong { background-color: #ef4444; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.15); transition: all 0.2s; }
         .btn-mini-wrong:hover { background-color: #dc2626; transform: translateY(-1px); }
 
-        /* 🛠️ 개선: 상단 오답노트 옆으로 격리 배치하여 메인 화면 흔들림 원천 차단 */
-        .btn-force-wrong { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; font-size: 12px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.15); transition: all 0.2s; display: none; }
+        /* 💡 오답노트 버튼 바로 아래에 부드럽게 세로로 나란히 밀착 배치 (중앙 화면에 영향 0%) */
+        .btn-force-wrong { background-color: #f59e0b; color: white; border: none; padding: 5px 10px; font-size: 11px; border-radius: 20px; cursor: pointer; font-weight: 700; width: auto; margin-top: 0; box-shadow: 0 2px 4px rgba(245, 158, 11, 0.15); transition: all 0.2s; display: none; }
         .btn-force-wrong:hover { background-color: #d97706; transform: translateY(-1px); }
 
         .sub-title { color: #4f46e5; font-size: 13px; font-weight: 700; text-align: left; letter-spacing: 0.5px; margin-bottom: 3px; }
@@ -76,9 +78,9 @@
     <div id="quiz-content" style="display: block;">
         <div class="header-row">
             <h2>3학년 수능특강 영단어</h2>
-            <div class="action-badges">
-                <button onclick="forceSaveToWrongList()" id="force-wrong-btn" class="btn-force-wrong">📌 이 단어 보관</button>
+            <div class="action-badges-column">
                 <button onclick="openWrongListScreen()" id="global-wrong-btn" class="btn-mini-wrong">📂 오답노트 (0)</button>
+                <button onclick="forceSaveToWrongList()" id="force-wrong-btn" class="btn-force-wrong">📌 이 단어 보관</button>
             </div>
         </div>
         <div class="sub-title">3학년 영단어 수행평가 대비</div>
@@ -533,7 +535,7 @@
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers.join(', ')})`;
                 resultDiv.className = "result correct";
                 
-                // 🛠️ 대안 반영: 정답 판정 시 상단 최우측 헤더 라인에 쏙 나타남 (메인 폼 움직임 유발 금지)
+                // 💡 기획 극대화: 정답 시 오답노트 버튼 '바로 아래' 세로줄에 깨끗하게 등장
                 forceBtn.style.display = "inline-block";
                 
                 if (isWrongReviewMode) {
