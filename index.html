@@ -35,6 +35,10 @@
         .btn-clean-wrong { margin-top: 12px; padding: 14px; font-size: 15px; font-weight: 700; background-color: #16a34a; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.12); transition: all 0.2s; display: none; }
         .btn-clean-wrong:hover { background-color: #15803d; transform: translateY(-1px); }
 
+        /* 💡 신규 추가: 임의 오답 보관용 노란색 감성 버튼 스타일 */
+        .btn-force-wrong { margin-top: 12px; padding: 12px; font-size: 14px; font-weight: 700; background-color: #d97706; color: white; border: none; border-radius: 14px; cursor: pointer; width: 90%; box-shadow: 0 4px 6px rgba(217, 119, 6, 0.12); transition: all 0.2s; display: none; }
+        .btn-force-wrong:hover { background-color: #b45309; transform: translateY(-1px); }
+
         .result { margin-top: 20px; font-size: 15px; font-weight: 700; min-height: 40px; line-height: 1.5; padding: 12px; border-radius: 12px; display: none; box-sizing: border-box; width: 90%; margin-left: auto; margin-right: auto; }
         .correct { color: #15803d; background-color: #f0fdf4; border: 1px solid rgba(21, 128, 61, 0.08); }
         .incorrect { color: #b91c1c; background-color: #fef2f2; border: 1px solid rgba(185, 28, 28, 0.08); }
@@ -87,6 +91,7 @@
         <br>
         <button onclick="checkAnswer()" id="action-btn" class="btn-action">정답 확인</button>
         <button onclick="cleanCorrectedWrongItems()" id="clean-wrong-btn" class="btn-clean-wrong">✨ 방금 맞춘 단어 오답노트에서 빼기</button>
+        <button onclick="forceSaveToWrongList()" id="force-wrong-btn" class="btn-force-wrong">📂 이 단어 오답노트에 강제로 넣기</button>
         <div class="result" id="result-display"></div>
         <div class="score" id="score-display">진행도: 0 / 200</div>
     </div>
@@ -418,6 +423,7 @@
         correctedList = [];
         currentIndex = 0;
         document.getElementById("clean-wrong-btn").style.display = "none"; 
+        document.getElementById("force-wrong-btn").style.display = "none";
         updateGlobalWrongBtnCount();
         showQuestion();
     }
@@ -436,6 +442,7 @@
         document.getElementById("wrong-list-section").style.display = "none";
         document.getElementById("quiz-content").style.display = "block";
         document.getElementById("clean-wrong-btn").style.display = "none"; 
+        document.getElementById("force-wrong-btn").style.display = "none";
 
         const userInput = document.getElementById("user-input");
         userInput.style.display = "inline-block";
@@ -449,11 +456,13 @@
         const resultDiv = document.getElementById("result-display");
         const userInput = document.getElementById("user-input");
         const cleanBtn = document.getElementById("clean-wrong-btn");
+        const forceBtn = document.getElementById("force-wrong-btn");
         
         if (currentIndex >= quizList.length) {
             userInput.style.display = "none";
             document.getElementById("action-btn").innerText = "다시 시작하기";
             resultDiv.style.display = "block";
+            forceBtn.style.display = "none";
             updateGlobalWrongBtnCount();
 
             if (isWrongReviewMode) {
@@ -488,6 +497,7 @@
         userInput.style.display = "inline-block";
         resultDiv.style.display = "none";
         cleanBtn.style.display = "none";
+        forceBtn.style.display = "none";
         document.getElementById("action-btn").innerText = "정답 확인";
         document.getElementById("score-display").innerText = `진행도: ${currentIndex} / ${quizList.length}`;
         isAnswerChecked = false;
@@ -502,6 +512,7 @@
         }
         const btn = document.getElementById("action-btn");
         const resultDiv = document.getElementById("result-display");
+        const forceBtn = document.getElementById("force-wrong-btn");
 
         if (!isAnswerChecked) {
             const uInput = document.getElementById("user-input").value.trim();
@@ -514,17 +525,21 @@
 
             resultDiv.style.display = "block";
             if (isCorrect) {
-                // ⭕ 정답 화면에서도 모든 유효 뜻을 다 같이 쉼표로 연결해서 보정 출력
                 resultDiv.innerText = `⭕ 정답입니다! (${correctAnswers.join(', ')})`;
                 resultDiv.className = "result correct";
+                
+                // 💡 요구사항 반영: 맞춘 상태이므로, 불안한 학생들을 위해 "임의로 오답노트에 추가" 버튼 오픈!
+                forceBtn.style.display = "inline-block";
                 
                 if (isWrongReviewMode) {
                     correctedList.push(quizList[currentIndex]);
                 }
             } else {
-                // ❌ 🛠️ 해결: 첫 단어 한 개만 출력되던 버그를 고치고 배열 내 모든 뜻을 join(', ')으로 통틀어 출력!
                 resultDiv.innerText = `❌ 틀렸습니다.\n(정답: ${correctAnswers.join(', ')})`;
                 resultDiv.className = "result incorrect";
+                
+                // 틀렸을 때는 어차피 강제 저장이 자동이므로 수동 추가 버튼을 숨김
+                forceBtn.style.display = "none";
                 
                 if (!isWrongReviewMode) {
                     wrongList.push(quizList[currentIndex]);
@@ -535,6 +550,18 @@
         } else {
             currentIndex++; showQuestion();
         }
+    }
+
+    // 💡 요구사항 반영: 틀리지 않았어도 학생이 원하면 오답노트에 임의로 집어넣는 비즈니스 함수
+    function forceSaveToWrongList() {
+        const currentWord = quizList[currentIndex];
+        saveToLocalStorage(currentWord);
+        
+        // 시각적으로 오답노트에 추가되었음을 토스트 피드백 알림
+        alert(`📂 [${currentWord.eng}] 단어가 오답노트에 임의 보관되었습니다.`);
+        
+        // 연타 방지용으로 추가 완료 후 버튼 숨김 처리
+        document.getElementById("force-wrong-btn").style.display = "none";
     }
 
     function cleanCorrectedWrongItems() {
